@@ -5,7 +5,7 @@ import { userInfo } from 'node:os'
 const subscribers = new Set<() => void>()
 
 export async function listVideos() {
-	const videos = await fs.readdir('./videos')
+	const videos = await fs.readdir('./videos').catch(() => [])
 	return videos
 }
 
