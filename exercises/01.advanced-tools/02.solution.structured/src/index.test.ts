@@ -177,10 +177,7 @@ test('Tool annotations and structured output', async () => {
 	// Check get_entry annotations and outputSchema
 	const getEntryTool = toolMap['get_entry']
 	invariant(getEntryTool, '🚨 get_entry tool not found')
-	expect(
-		getEntryTool.annotations,
-		'🚨 get_entry missing annotations',
-	).toEqual(
+	expect(getEntryTool.annotations, '🚨 get_entry missing annotations').toEqual(
 		expect.objectContaining({
 			readOnlyHint: true,
 			openWorldHint: false,
@@ -246,10 +243,7 @@ test('Tool annotations and structured output', async () => {
 	// Check get_tag annotations and outputSchema
 	const getTagTool = toolMap['get_tag']
 	invariant(getTagTool, '🚨 get_tag tool not found')
-	expect(
-		getTagTool.annotations,
-		'🚨 get_tag missing annotations',
-	).toEqual(
+	expect(getTagTool.annotations, '🚨 get_tag missing annotations').toEqual(
 		expect.objectContaining({
 			readOnlyHint: true,
 			openWorldHint: false,
@@ -263,10 +257,7 @@ test('Tool annotations and structured output', async () => {
 	// Check list_tags annotations and outputSchema
 	const listTagsTool = toolMap['list_tags']
 	invariant(listTagsTool, '🚨 list_tags tool not found')
-	expect(
-		listTagsTool.annotations,
-		'🚨 list_tags missing annotations',
-	).toEqual(
+	expect(listTagsTool.annotations, '🚨 list_tags missing annotations').toEqual(
 		expect.objectContaining({
 			readOnlyHint: true,
 			openWorldHint: false,
@@ -348,7 +339,7 @@ test('Tool annotations and structured output', async () => {
 	).toBeDefined()
 
 	// Test structured content in responses
-	
+
 	// get_entry structuredContent
 	const getEntryResult = await client.callTool({
 		name: 'get_entry',

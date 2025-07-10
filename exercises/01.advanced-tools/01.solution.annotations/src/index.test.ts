@@ -111,7 +111,7 @@ test('Tool annotations', async () => {
 			description: 'A tag for testing',
 		},
 	})
-	
+
 	const entryResult = await client.callTool({
 		name: 'create_entry',
 		arguments: {
@@ -127,10 +127,7 @@ test('Tool annotations', async () => {
 	// Check get_entry annotations (read-only)
 	const getEntryTool = toolMap['get_entry']
 	invariant(getEntryTool, '🚨 get_entry tool not found')
-	expect(
-		getEntryTool.annotations,
-		'🚨 get_entry missing annotations',
-	).toEqual(
+	expect(getEntryTool.annotations, '🚨 get_entry missing annotations').toEqual(
 		expect.objectContaining({
 			readOnlyHint: true,
 			openWorldHint: false,
@@ -180,10 +177,7 @@ test('Tool annotations', async () => {
 	// Check get_tag annotations (read-only)
 	const getTagTool = toolMap['get_tag']
 	invariant(getTagTool, '🚨 get_tag tool not found')
-	expect(
-		getTagTool.annotations,
-		'🚨 get_tag missing annotations',
-	).toEqual(
+	expect(getTagTool.annotations, '🚨 get_tag missing annotations').toEqual(
 		expect.objectContaining({
 			readOnlyHint: true,
 			openWorldHint: false,
@@ -193,10 +187,7 @@ test('Tool annotations', async () => {
 	// Check list_tags annotations (read-only)
 	const listTagsTool = toolMap['list_tags']
 	invariant(listTagsTool, '🚨 list_tags tool not found')
-	expect(
-		listTagsTool.annotations,
-		'🚨 list_tags missing annotations',
-	).toEqual(
+	expect(listTagsTool.annotations, '🚨 list_tags missing annotations').toEqual(
 		expect.objectContaining({
 			readOnlyHint: true,
 			openWorldHint: false,
@@ -244,7 +235,7 @@ test('Tool annotations', async () => {
 		}),
 	)
 
-	// Check create_wrapped_video annotations  
+	// Check create_wrapped_video annotations
 	const createWrappedVideoTool = toolMap['create_wrapped_video']
 	invariant(createWrappedVideoTool, '🚨 create_wrapped_video tool not found')
 	expect(
@@ -288,7 +279,7 @@ test('Basic tool functionality', async () => {
 
 	// Test basic CRUD operations work
 	const list = await client.listTools()
-	const toolNames = list.tools.map(t => t.name)
+	const toolNames = list.tools.map((t) => t.name)
 	expect(toolNames).toContain('create_entry')
 	expect(toolNames).toContain('create_tag')
 	expect(toolNames).toContain('get_entry')

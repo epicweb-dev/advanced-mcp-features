@@ -440,7 +440,9 @@ test('Progress notification: create_wrapped_video (mock)', async () => {
 	try {
 		progressNotif = await Promise.race([
 			progressDeferred.promise,
-			new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 2000)),
+			new Promise((_, reject) =>
+				setTimeout(() => reject(new Error('timeout')), 2000),
+			),
 		])
 	} catch {
 		throw new Error(

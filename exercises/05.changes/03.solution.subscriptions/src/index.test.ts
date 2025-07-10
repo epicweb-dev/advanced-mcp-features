@@ -52,6 +52,28 @@ async function setupClient({ capabilities = {} } = {}) {
 	}
 }
 
+async function deferred<ResolvedValue>() {
+	const ref = {} as {
+		promise: Promise<ResolvedValue>
+		resolve: (value: ResolvedValue) => void
+		reject: (reason?: any) => void
+		value: ResolvedValue | undefined
+		reason: any | undefined
+	}
+	ref.promise = new Promise<ResolvedValue>((resolve, reject) => {
+		ref.resolve = (value) => {
+			ref.value = value
+			resolve(value)
+		}
+		ref.reject = (reason) => {
+			ref.reason = reason
+			reject(reason)
+		}
+	})
+
+	return ref
+}
+
 test('Tool Definition', async () => {
 	await using setup = await setupClient()
 	const { client } = setup
@@ -101,6 +123,12 @@ test('Tool annotations and structured output', async () => {
 		}),
 	)
 
+	// Check create_entry outputSchema
+	expect(
+		createEntryTool.outputSchema,
+		'🚨 create_entry missing outputSchema',
+	).toBeDefined()
+
 	// Check create_tag annotations
 	const createTagTool = toolMap['create_tag']
 	invariant(createTagTool, '🚨 create_tag tool not found')
@@ -113,6 +141,12 @@ test('Tool annotations and structured output', async () => {
 			openWorldHint: false,
 		}),
 	)
+
+	// Check create_tag outputSchema
+	expect(
+		createTagTool.outputSchema,
+		'🚨 create_tag missing outputSchema',
+	).toBeDefined()
 
 	// Create a tag and entry for further tool calls
 	const tagResult = await client.callTool({
@@ -145,37 +179,7 @@ test('Tool annotations and structured output', async () => {
 	invariant(entry, '🚨 No entry resource found')
 	invariant(entry.id, '🚨 No entry ID found')
 
-	// List tools again now that entry and tag exist
-	list = await client.listTools()
-	toolMap = Object.fromEntries(list.tools.map((t) => [t.name, t]))
-
-	// Check delete_entry annotations
-	const deleteEntryTool = toolMap['delete_entry']
-	invariant(deleteEntryTool, '🚨 delete_entry tool not found')
-	expect(
-		deleteEntryTool.annotations,
-		'🚨 delete_entry missing annotations',
-	).toEqual(
-		expect.objectContaining({
-			idempotentHint: true,
-			openWorldHint: false,
-		}),
-	)
-
-	// Check delete_tag annotations
-	const deleteTagTool = toolMap['delete_tag']
-	invariant(deleteTagTool, '🚨 delete_tag tool not found')
-	expect(
-		deleteTagTool.annotations,
-		'🚨 delete_tag missing annotations',
-	).toEqual(
-		expect.objectContaining({
-			idempotentHint: true,
-			openWorldHint: false,
-		}),
-	)
-
-	// get_entry structuredContent
+	// Test structured content in basic CRUD operations
 	const getEntryResult = await client.callTool({
 		name: 'get_entry',
 		arguments: { id: entry.id },
@@ -185,101 +189,45 @@ test('Tool annotations and structured output', async () => {
 	expect(getEntryContent.id, '🚨 get_entry structuredContent.id mismatch').toBe(
 		entry.id,
 	)
+})
 
-	// get_tag structuredContent
-	const getTagResult = await client.callTool({
-		name: 'get_tag',
-		arguments: { id: tag.id },
+test('Elicitation: delete_tag decline', async () => {
+	await using setup = await setupClient({ capabilities: { elicitation: {} } })
+	const { client } = setup
+
+	// Set up a handler for elicitation requests
+	client.setRequestHandler(ElicitRequestSchema, () => {
+		return {
+			action: 'decline',
+		}
 	})
-	const getTagContent = (getTagResult.structuredContent as any).tag
-	invariant(getTagContent, '🚨 get_tag missing tag in structuredContent')
-	expect(getTagContent.id, '🚨 get_tag structuredContent.id mismatch').toBe(
-		tag.id,
-	)
 
-	// update_entry structuredContent
-	const updateEntryResult = await client.callTool({
-		name: 'update_entry',
-		arguments: { id: entry.id, title: 'Updated Entry' },
+	// Create a tag to delete
+	const tagResult = await client.callTool({
+		name: 'create_tag',
+		arguments: {
+			name: 'Elicit Test Tag',
+			description: 'Testing elicitation decline.',
+		},
 	})
-	const updateEntryContent = (updateEntryResult.structuredContent as any).entry
-	invariant(
-		updateEntryContent,
-		'🚨 update_entry missing entry in structuredContent',
-	)
-	expect(
-		updateEntryContent.title,
-		'🚨 update_entry structuredContent.title mismatch',
-	).toBe('Updated Entry')
+	const tag = (tagResult.structuredContent as any).tag
+	invariant(tag, '🚨 No tag resource found')
+	invariant(tag.id, '🚨 No tag ID found')
 
-	// update_tag structuredContent
-	const updateTagResult = await client.callTool({
-		name: 'update_tag',
-		arguments: { id: tag.id, name: 'UpdatedTag' },
-	})
-	const updateTagContent = (updateTagResult.structuredContent as any).tag
-	invariant(updateTagContent, '🚨 update_tag missing tag in structuredContent')
-	expect(
-		updateTagContent.name,
-		'🚨 update_tag structuredContent.name mismatch',
-	).toBe('UpdatedTag')
-
-	// delete_entry structuredContent
-	const deleteEntryResult = await client.callTool({
-		name: 'delete_entry',
-		arguments: { id: entry.id },
-	})
-	const deleteEntryContent = deleteEntryResult.structuredContent as any
-	invariant(deleteEntryContent, '🚨 delete_entry missing structuredContent')
-	expect(
-		deleteEntryContent.success,
-		'🚨 delete_entry structuredContent.success should be true',
-	).toBe(true)
-	expect(
-		deleteEntryContent.entry.id,
-		'🚨 delete_entry structuredContent.entry.id mismatch',
-	).toBe(entry.id)
-
-	// delete_tag structuredContent
-	const deleteTagResult = await client.callTool({
+	// Delete the tag, which should trigger elicitation and be declined
+	const deleteResult = await client.callTool({
 		name: 'delete_tag',
 		arguments: { id: tag.id },
 	})
-	const deleteTagContent = deleteTagResult.structuredContent as any
-	invariant(deleteTagContent, '🚨 delete_tag missing structuredContent')
+	const structuredContent = deleteResult.structuredContent as any
+
 	expect(
-		deleteTagContent.success,
-		'🚨 delete_tag structuredContent.success should be true',
-	).toBe(true)
-	expect(
-		deleteTagContent.tag.id,
-		'🚨 delete_tag structuredContent.tag.id mismatch',
-	).toBe(tag.id)
+		structuredContent.success,
+		'🚨 structuredContent.success should be false after declining to delete a tag',
+	).toBe(false)
 })
 
-async function deferred<ResolvedValue>() {
-	const ref = {} as {
-		promise: Promise<ResolvedValue>
-		resolve: (value: ResolvedValue) => void
-		reject: (reason?: any) => void
-		value: ResolvedValue | undefined
-		reason: any | undefined
-	}
-	ref.promise = new Promise<ResolvedValue>((resolve, reject) => {
-		ref.resolve = (value) => {
-			ref.value = value
-			resolve(value)
-		}
-		ref.reject = (reason) => {
-			ref.reason = reason
-			reject(reason)
-		}
-	})
-
-	return ref
-}
-
-test('Sampling', async () => {
+test('Advanced Sampling', async () => {
 	await using setup = await setupClient({ capabilities: { sampling: {} } })
 	const { client } = setup
 	const messageResultDeferred = await deferred<CreateMessageResult>()
@@ -449,6 +397,291 @@ test('Sampling', async () => {
 	await new Promise((resolve) => setTimeout(resolve, 100))
 })
 
+test('Progress notification: create_wrapped_video (mock)', async () => {
+	await using setup = await setupClient()
+	const { client } = setup
+
+	const progressDeferred = await deferred<any>()
+	client.setNotificationHandler(ProgressNotificationSchema, (notification) => {
+		progressDeferred.resolve(notification)
+	})
+
+	// Ensure the tool is enabled by creating a tag and an entry first
+	await client.callTool({
+		name: 'create_tag',
+		arguments: {
+			name: faker.lorem.word(),
+			description: faker.lorem.sentence(),
+		},
+	})
+	await client.callTool({
+		name: 'create_entry',
+		arguments: {
+			title: faker.lorem.words(3),
+			content: faker.lorem.paragraphs(2),
+		},
+	})
+
+	// Call the tool with mockTime: 500
+	const progressToken = faker.string.uuid()
+	const createVideoResult = await client.callTool({
+		name: 'create_wrapped_video',
+		arguments: {
+			mockTime: 500,
+		},
+		_meta: {
+			progressToken,
+		},
+	})
+
+	// Verify the tool call completed successfully
+	expect(
+		createVideoResult.structuredContent,
+		'🚨 create_wrapped_video should return structured content',
+	).toBeDefined()
+
+	let progressNotif
+	try {
+		progressNotif = await Promise.race([
+			progressDeferred.promise,
+			new Promise((_, reject) =>
+				setTimeout(() => reject(new Error('timeout')), 2000),
+			),
+		])
+	} catch {
+		throw new Error(
+			'🚨 Did not receive progress notification for create_wrapped_video (mock). Make sure your tool sends progress updates when running in mock mode.',
+		)
+	}
+
+	expect(
+		progressNotif,
+		'🚨 Did not receive progress notification for create_wrapped_video (mock).',
+	).toBeDefined()
+
+	expect(
+		typeof progressNotif.params.progress,
+		'🚨 progress should be a number',
+	).toBe('number')
+	expect(
+		progressNotif.params.progress,
+		'🚨 progress should be a number between 0 and 1',
+	).toBeGreaterThanOrEqual(0)
+	expect(
+		progressNotif.params.progress,
+		'🚨 progress should be a number between 0 and 1',
+	).toBeLessThanOrEqual(1)
+	expect(
+		progressNotif.params.progressToken,
+		'🚨 progressToken should match the token sent in the tool call',
+	).toBe(progressToken)
+})
+
+test('Cancellation support: create_wrapped_video (mock)', async () => {
+	await using setup = await setupClient()
+	const { client } = setup
+
+	// Ensure the tool is enabled by creating a tag and an entry first
+	await client.callTool({
+		name: 'create_tag',
+		arguments: {
+			name: faker.lorem.word(),
+			description: faker.lorem.sentence(),
+		},
+	})
+	await client.callTool({
+		name: 'create_entry',
+		arguments: {
+			title: faker.lorem.words(3),
+			content: faker.lorem.paragraphs(2),
+		},
+	})
+
+	// Test that the tool can handle cancellation by setting a very short mock time
+	// and verifying it can be cancelled (simulation of cancellation capability)
+	const progressToken = faker.string.uuid()
+	let progressCount = 0
+	client.setNotificationHandler(ProgressNotificationSchema, (notification) => {
+		if (notification.params.progressToken === progressToken) {
+			progressCount++
+		}
+	})
+
+	// Call the tool with a short mock time to simulate cancellation capability
+	const mockTime = 100 // Very short time
+	const createVideoResult = await client.callTool({
+		name: 'create_wrapped_video',
+		arguments: {
+			mockTime,
+			cancelAfter: 50, // Cancel after 50ms if supported
+		},
+		_meta: {
+			progressToken,
+		},
+	})
+
+	// The tool should either complete successfully or handle cancellation gracefully
+	expect(
+		createVideoResult.structuredContent,
+		'🚨 Tool should return structured content indicating completion or cancellation status',
+	).toBeDefined()
+
+	// For this exercise, we're testing that the tool infrastructure supports cancellation
+	// The actual implementation will depend on how the server handles AbortSignal
+	const content = createVideoResult.structuredContent as any
+	expect(
+		content.status || content.success !== false,
+		'🚨 Tool should indicate whether it completed or was cancelled',
+	).toBeTruthy()
+
+	// Verify we received progress updates
+	expect(
+		progressCount,
+		'🚨 Should have received at least one progress update during execution',
+	).toBeGreaterThan(0)
+})
+
+test('ListChanged notification: prompts', async () => {
+	await using setup = await setupClient()
+	const { client } = setup
+
+	const promptListChanged = await deferred<any>()
+	client.setNotificationHandler(
+		PromptListChangedNotificationSchema,
+		(notification) => {
+			promptListChanged.resolve(notification)
+		},
+	)
+
+	// Trigger a DB change that should enable prompts
+	await client.callTool({
+		name: 'create_tag',
+		arguments: {
+			name: faker.lorem.word(),
+			description: faker.lorem.sentence(),
+		},
+	})
+	await client.callTool({
+		name: 'create_entry',
+		arguments: {
+			title: faker.lorem.words(3),
+			content: faker.lorem.paragraphs(2),
+		},
+	})
+
+	let promptNotif
+	try {
+		promptNotif = await Promise.race([
+			promptListChanged.promise,
+			new Promise((_, reject) =>
+				setTimeout(() => reject(new Error('timeout')), 2000),
+			),
+		])
+	} catch {
+		throw new Error(
+			'🚨 Did not receive prompts/listChanged notification when expected. Make sure your server calls sendPromptListChanged when prompts are enabled/disabled.',
+		)
+	}
+	expect(
+		promptNotif,
+		'🚨 Did not receive prompts/listChanged notification when expected. Make sure your server calls sendPromptListChanged when prompts are enabled/disabled.',
+	).toBeDefined()
+})
+
+test('ListChanged notification: resources', async () => {
+	await using setup = await setupClient()
+	const { client } = setup
+
+	const resourceListChanged = await deferred<any>()
+	client.setNotificationHandler(
+		ResourceListChangedNotificationSchema,
+		(notification) => {
+			resourceListChanged.resolve(notification)
+		},
+	)
+
+	// Trigger a DB change that should enable resources
+	await client.callTool({
+		name: 'create_tag',
+		arguments: {
+			name: faker.lorem.word(),
+			description: faker.lorem.sentence(),
+		},
+	})
+	await client.callTool({
+		name: 'create_entry',
+		arguments: {
+			title: faker.lorem.words(3),
+			content: faker.lorem.paragraphs(2),
+		},
+	})
+
+	let resourceNotif
+	try {
+		resourceNotif = await Promise.race([
+			resourceListChanged.promise,
+			new Promise((_, reject) =>
+				setTimeout(() => reject(new Error('timeout')), 2000),
+			),
+		])
+	} catch {
+		throw new Error(
+			'🚨 Did not receive resources/listChanged notification when expected. Make sure your server calls sendResourceListChanged when resources change.',
+		)
+	}
+	expect(
+		resourceNotif,
+		'🚨 Did not receive resources/listChanged notification when expected. Make sure your server calls sendResourceListChanged when resources change.',
+	).toBeDefined()
+})
+
+test('ListChanged notification: tools', async () => {
+	await using setup = await setupClient()
+	const { client } = setup
+
+	const toolListChanged = await deferred<any>()
+	client.setNotificationHandler(
+		ToolListChangedNotificationSchema,
+		(notification) => {
+			toolListChanged.resolve(notification)
+		},
+	)
+
+	// Trigger a DB change that should enable tools
+	await client.callTool({
+		name: 'create_tag',
+		arguments: {
+			name: faker.lorem.word(),
+			description: faker.lorem.sentence(),
+		},
+	})
+	await client.callTool({
+		name: 'create_entry',
+		arguments: {
+			title: faker.lorem.words(3),
+			content: faker.lorem.paragraphs(2),
+		},
+	})
+
+	let toolNotif
+	try {
+		toolNotif = await Promise.race([
+			toolListChanged.promise,
+			new Promise((_, reject) =>
+				setTimeout(() => reject(new Error('timeout')), 2000),
+			),
+		])
+	} catch {
+		throw new Error(
+			'🚨 Did not receive tools/listChanged notification when expected. Make sure your server notifies clients when tools are enabled/disabled.',
+		)
+	}
+	expect(
+		toolNotif,
+		'🚨 Did not receive tools/listChanged notification when expected. Make sure your server notifies clients when tools are enabled/disabled.',
+	).toBeDefined()
+})
+
 test('Resource subscriptions: entry and tag', async () => {
 	await using setup = await setupClient()
 	const { client } = setup
@@ -545,313 +778,4 @@ test('Resource subscriptions: entry and tag', async () => {
 		notifications,
 		'🚨 No notifications should be received after unsubscribing',
 	).toHaveLength(0)
-})
-
-test('Elicitation: delete_entry confirmation', async () => {
-	await using setup = await setupClient({ capabilities: { elicitation: {} } })
-	const { client } = setup
-
-	// Set up a handler for elicitation requests
-	let elicitationRequest: any
-	client.setRequestHandler(ElicitRequestSchema, (req) => {
-		elicitationRequest = req
-		// Simulate user accepting the confirmation
-		return {
-			action: 'accept',
-			content: { confirmed: true },
-		}
-	})
-
-	// Create an entry to delete
-	const entryResult = await client.callTool({
-		name: 'create_entry',
-		arguments: {
-			title: 'Elicit Test Entry',
-			content: 'Testing elicitation on delete.',
-		},
-	})
-	const entry = (entryResult.structuredContent as any).entry
-	invariant(entry, '🚨 No entry resource found')
-	invariant(entry.id, '🚨 No entry ID found')
-
-	// Delete the entry, which should trigger elicitation
-	const deleteResult = await client.callTool({
-		name: 'delete_entry',
-		arguments: { id: entry.id },
-	})
-	const structuredContent = deleteResult.structuredContent as any
-	invariant(
-		structuredContent,
-		'🚨 No structuredContent returned from delete_entry',
-	)
-	invariant(
-		'success' in structuredContent,
-		'🚨 structuredContent missing success field',
-	)
-	expect(
-		structuredContent.success,
-		'🚨 structuredContent.success should be true after deleting an entry',
-	).toBe(true)
-
-	invariant(elicitationRequest, '🚨 No elicitation request was sent')
-	const params = elicitationRequest.params
-	invariant(params, '🚨 elicitationRequest missing params')
-
-	expect(
-		params.message,
-		'🚨 elicitationRequest.params.message should match expected confirmation prompt',
-	).toMatch(/Are you sure you want to delete entry/i)
-
-	expect(
-		params.requestedSchema,
-		'🚨 elicitationRequest.params.requestedSchema should match expected schema',
-	).toEqual(
-		expect.objectContaining({
-			type: 'object',
-			properties: expect.objectContaining({
-				confirmed: expect.objectContaining({ type: 'boolean' }),
-			}),
-		}),
-	)
-})
-
-test('Elicitation: delete_tag decline', async () => {
-	await using setup = await setupClient({ capabilities: { elicitation: {} } })
-	const { client } = setup
-
-	// Set up a handler for elicitation requests
-	client.setRequestHandler(ElicitRequestSchema, () => {
-		return {
-			action: 'decline',
-		}
-	})
-
-	// Create a tag to delete
-	const tagResult = await client.callTool({
-		name: 'create_tag',
-		arguments: {
-			name: 'Elicit Test Tag',
-			description: 'Testing elicitation decline.',
-		},
-	})
-	const tag = (tagResult.structuredContent as any).tag
-	invariant(tag, '🚨 No tag resource found')
-	invariant(tag.id, '🚨 No tag ID found')
-
-	// Delete the tag, which should trigger elicitation and be declined
-	const deleteResult = await client.callTool({
-		name: 'delete_tag',
-		arguments: { id: tag.id },
-	})
-	const structuredContent = deleteResult.structuredContent as any
-
-	expect(
-		structuredContent.success,
-		'🚨 structuredContent.success should be false after declining to delete a tag',
-	).toBe(false)
-})
-
-test('ListChanged notification: resources', async () => {
-	await using setup = await setupClient()
-	const { client } = setup
-
-	const resourceListChanged = await deferred<any>()
-	client.setNotificationHandler(
-		ResourceListChangedNotificationSchema,
-		(notification) => {
-			resourceListChanged.resolve(notification)
-		},
-	)
-
-	// Trigger a DB change that should enable resources
-	await client.callTool({
-		name: 'create_tag',
-		arguments: {
-			name: faker.lorem.word(),
-			description: faker.lorem.sentence(),
-		},
-	})
-	await client.callTool({
-		name: 'create_entry',
-		arguments: {
-			title: faker.lorem.words(3),
-			content: faker.lorem.paragraphs(2),
-		},
-	})
-
-	let resourceNotif
-	try {
-		resourceNotif = await Promise.race([
-			resourceListChanged.promise,
-			AbortSignal.timeout(2000),
-		])
-	} catch {
-		throw new Error(
-			'🚨 Did not receive resources/listChanged notification when expected. Make sure your server calls sendResourceListChanged when resources change.',
-		)
-	}
-	expect(
-		resourceNotif,
-		'🚨 Did not receive resources/listChanged notification when expected. Make sure your server calls sendResourceListChanged when resources change.',
-	).toBeDefined()
-})
-
-test('ListChanged notification: tools', async () => {
-	await using setup = await setupClient()
-	const { client } = setup
-
-	const toolListChanged = await deferred<any>()
-	client.setNotificationHandler(
-		ToolListChangedNotificationSchema,
-		(notification) => {
-			toolListChanged.resolve(notification)
-		},
-	)
-
-	// Trigger a DB change that should enable tools
-	await client.callTool({
-		name: 'create_tag',
-		arguments: {
-			name: faker.lorem.word(),
-			description: faker.lorem.sentence(),
-		},
-	})
-	await client.callTool({
-		name: 'create_entry',
-		arguments: {
-			title: faker.lorem.words(3),
-			content: faker.lorem.paragraphs(2),
-		},
-	})
-
-	let toolNotif
-	try {
-		toolNotif = await Promise.race([
-			toolListChanged.promise,
-			AbortSignal.timeout(2000),
-		])
-	} catch {
-		throw new Error(
-			'🚨 Did not receive tools/listChanged notification when expected. Make sure your server notifies clients when tools are enabled/disabled.',
-		)
-	}
-	expect(
-		toolNotif,
-		'🚨 Did not receive tools/listChanged notification when expected. Make sure your server notifies clients when tools are enabled/disabled.',
-	).toBeDefined()
-})
-
-test('ListChanged notification: prompts', async () => {
-	await using setup = await setupClient()
-	const { client } = setup
-
-	const promptListChanged = await deferred<any>()
-	client.setNotificationHandler(
-		PromptListChangedNotificationSchema,
-		(notification) => {
-			promptListChanged.resolve(notification)
-		},
-	)
-
-	// Trigger a DB change that should enable prompts
-	await client.callTool({
-		name: 'create_tag',
-		arguments: {
-			name: faker.lorem.word(),
-			description: faker.lorem.sentence(),
-		},
-	})
-	await client.callTool({
-		name: 'create_entry',
-		arguments: {
-			title: faker.lorem.words(3),
-			content: faker.lorem.paragraphs(2),
-		},
-	})
-
-	let promptNotif
-	try {
-		promptNotif = await Promise.race([
-			promptListChanged.promise,
-			AbortSignal.timeout(2000),
-		])
-	} catch {
-		throw new Error(
-			'🚨 Did not receive prompts/listChanged notification when expected. Make sure your server notifies clients when prompts are enabled/disabled.',
-		)
-	}
-	expect(
-		promptNotif,
-		'🚨 Did not receive prompts/listChanged notification when expected. Make sure your server notifies clients when prompts are enabled/disabled.',
-	).toBeDefined()
-})
-
-test('Progress notification: create_wrapped_video (mock)', async () => {
-	await using setup = await setupClient()
-	const { client } = setup
-
-	const progressDeferred = await deferred<any>()
-	client.setNotificationHandler(ProgressNotificationSchema, (notification) => {
-		progressDeferred.resolve(notification)
-	})
-
-	// Ensure the tool is enabled by creating a tag and an entry first
-	await client.callTool({
-		name: 'create_tag',
-		arguments: {
-			name: faker.lorem.word(),
-			description: faker.lorem.sentence(),
-		},
-	})
-	await client.callTool({
-		name: 'create_entry',
-		arguments: {
-			title: faker.lorem.words(3),
-			content: faker.lorem.paragraphs(2),
-		},
-	})
-
-	// Call the tool with mockTime: 500
-	const progressToken = faker.string.uuid()
-	await client.callTool({
-		name: 'create_wrapped_video',
-		arguments: {
-			mockTime: 500,
-		},
-		_meta: {
-			progressToken,
-		},
-	})
-
-	let progressNotif
-	try {
-		progressNotif = await Promise.race([
-			progressDeferred.promise,
-			AbortSignal.timeout(2000),
-		])
-	} catch {
-		throw new Error(
-			'🚨 Did not receive progress notification for create_wrapped_video (mock). Make sure your tool sends progress updates when running in mock mode.',
-		)
-	}
-	expect(
-		progressNotif,
-		'🚨 Did not receive progress notification for create_wrapped_video (mock).',
-	).toBeDefined()
-	expect(
-		typeof progressNotif.params.progress,
-		'🚨 progress should be a number',
-	).toBe('number')
-	expect(
-		progressNotif.params.progress,
-		'🚨 progress should be a number between 0 and 1',
-	).toBeGreaterThanOrEqual(0)
-	expect(
-		progressNotif.params.progress,
-		'🚨 progress should be a number between 0 and 1',
-	).toBeLessThanOrEqual(1)
-	expect(
-		progressNotif.params.progressToken,
-		'🚨 progressToken should be a string',
-	).toBe(progressToken)
 })

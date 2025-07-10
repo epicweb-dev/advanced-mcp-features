@@ -1,68 +1,66 @@
 {
-  "files": [],
-  "exclude": [
-    "node_modules"
-  ],
-  "references": [
-    {
-      "path": "exercises/01.advanced-tools/01.problem.annotations"
-    },
-    {
-      "path": "exercises/01.advanced-tools/01.solution.annotations"
-    },
-    {
-      "path": "exercises/01.advanced-tools/02.problem.structured"
-    },
-    {
-      "path": "exercises/01.advanced-tools/02.solution.structured"
-    },
-    {
-      "path": "exercises/02.elicitation/01.problem"
-    },
-    {
-      "path": "exercises/02.elicitation/01.solution"
-    },
-    {
-      "path": "exercises/03.sampling/01.problem.simple"
-    },
-    {
-      "path": "exercises/03.sampling/01.solution.simple"
-    },
-    {
-      "path": "exercises/03.sampling/02.problem.advanced"
-    },
-    {
-      "path": "exercises/03.sampling/02.solution.advanced"
-    },
-    {
-      "path": "exercises/04.long-running-tasks/01.problem.progress"
-    },
-    {
-      "path": "exercises/04.long-running-tasks/01.solution.progress"
-    },
-    {
-      "path": "exercises/04.long-running-tasks/02.problem.cancellation"
-    },
-    {
-      "path": "exercises/04.long-running-tasks/02.solution.cancellation"
-    },
-    {
-      "path": "exercises/05.changes/01.problem.list-changed"
-    },
-    {
-      "path": "exercises/05.changes/01.solution.list-changed"
-    },
-    {
-      "path": "exercises/05.changes/02.problem.resources-list-changed"
-    },
-    {
-      "path": "exercises/05.changes/02.solution.resources-list-changed"
-    },
-    {
-      "path": "exercises/05.changes/03.problem.subscriptions"
-    },
-    {
-      "path": "exercises/05.changes/03.solution.subscriptions"
-    }
-  ]
+	"files": [],
+	"exclude": ["node_modules"],
+	"references": [
+		{
+			"path": "exercises/01.advanced-tools/01.problem.annotations"
+		},
+		{
+			"path": "exercises/01.advanced-tools/01.solution.annotations"
+		},
+		{
+			"path": "exercises/01.advanced-tools/02.problem.structured"
+		},
+		{
+			"path": "exercises/01.advanced-tools/02.solution.structured"
+		},
+		{
+			"path": "exercises/02.elicitation/01.problem"
+		},
+		{
+			"path": "exercises/02.elicitation/01.solution"
+		},
+		{
+			"path": "exercises/03.sampling/01.problem.simple"
+		},
+		{
+			"path": "exercises/03.sampling/01.solution.simple"
+		},
+		{
+			"path": "exercises/03.sampling/02.problem.advanced"
+		},
+		{
+			"path": "exercises/03.sampling/02.solution.advanced"
+		},
+		{
+			"path": "exercises/04.long-running-tasks/01.problem.progress"
+		},
+		{
+			"path": "exercises/04.long-running-tasks/01.solution.progress"
+		},
+		{
+			"path": "exercises/04.long-running-tasks/02.problem.cancellation"
+		},
+		{
+			"path": "exercises/04.long-running-tasks/02.solution.cancellation"
+		},
+		{
+			"path": "exercises/05.changes/01.problem.list-changed"
+		},
+		{
+			"path": "exercises/05.changes/01.solution.list-changed"
+		},
+		{
+			"path": "exercises/05.changes/02.problem.resources-list-changed"
+		},
+		{
+			"path": "exercises/05.changes/02.solution.resources-list-changed"
+		},
+		{
+			"path": "exercises/05.changes/03.problem.subscriptions"
+		},
+		{
+			"path": "exercises/05.changes/03.solution.subscriptions"
+		}
+	]
 }

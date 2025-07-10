@@ -4,9 +4,7 @@ import { invariant } from '@epic-web/invariant'
 import { faker } from '@faker-js/faker'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
-import {
-	ElicitRequestSchema,
-} from '@modelcontextprotocol/sdk/types.js'
+import { ElicitRequestSchema } from '@modelcontextprotocol/sdk/types.js'
 import { test, expect } from 'vitest'
 
 function getTestDbPath() {
@@ -188,7 +186,7 @@ test('Tool annotations and structured output', async () => {
 	).toBeDefined()
 
 	// Test structured content in responses
-	
+
 	// get_entry structuredContent
 	const getEntryResult = await client.callTool({
 		name: 'get_entry',
