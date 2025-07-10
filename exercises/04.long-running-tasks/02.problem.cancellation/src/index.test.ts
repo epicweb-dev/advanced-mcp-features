@@ -493,46 +493,56 @@ test('Cancellation support: create_wrapped_video (mock)', async () => {
 		},
 	})
 
-	// Test that the tool can handle cancellation by setting a very short mock time
-	// and verifying it can be cancelled (simulation of cancellation capability)
+	// Test actual cancellation behavior
 	const progressToken = faker.string.uuid()
-	let progressCount = 0
+	const progressNotifications: any[] = []
 	client.setNotificationHandler(ProgressNotificationSchema, (notification) => {
 		if (notification.params.progressToken === progressToken) {
-			progressCount++
+			progressNotifications.push(notification)
 		}
 	})
 
-	// Call the tool with a short mock time to simulate cancellation capability
-	const mockTime = 100 // Very short time
+	// Start a longer running task with cancellation
+	const mockTime = 2000 // 2 seconds
+	const cancelAfter = 500 // Cancel after 500ms
+
+	// This test specifically validates that cancellation is properly handled
+	// The implementation should support cancellation via AbortSignal
 	const createVideoResult = await client.callTool({
 		name: 'create_wrapped_video',
 		arguments: {
 			mockTime,
-			cancelAfter: 50, // Cancel after 50ms if supported
+			cancelAfter,
 		},
 		_meta: {
 			progressToken,
 		},
 	})
 
-	// The tool should either complete successfully or handle cancellation gracefully
+	// The tool should return structured content indicating it was cancelled
 	expect(
 		createVideoResult.structuredContent,
-		'🚨 Tool should return structured content indicating completion or cancellation status',
+		'🚨 Tool should return structured content',
 	).toBeDefined()
 
-	// For this exercise, we're testing that the tool infrastructure supports cancellation
-	// The actual implementation will depend on how the server handles AbortSignal
 	const content = createVideoResult.structuredContent as any
-	expect(
-		content.status || content.success !== false,
-		'🚨 Tool should indicate whether it completed or was cancelled',
-	).toBeTruthy()
 
-	// Verify we received progress updates
+	// Verify the tool was actually cancelled, not just completed
 	expect(
-		progressCount,
-		'🚨 Should have received at least one progress update during execution',
+		content.cancelled || content.status === 'cancelled',
+		'🚨 Tool should indicate it was cancelled when cancelAfter is specified. The implementation must support AbortSignal for cancellation.',
+	).toBe(true)
+
+	// Should have received some progress notifications but not completed all
+	expect(
+		progressNotifications.length,
+		'🚨 Should have received some progress notifications before cancellation',
 	).toBeGreaterThan(0)
+
+	// Verify that the task was cancelled before completion
+	const lastProgress = progressNotifications[progressNotifications.length - 1]
+	expect(
+		lastProgress.params.progress,
+		'🚨 Progress should be less than 1.0 when task is cancelled',
+	).toBeLessThan(1.0)
 })
