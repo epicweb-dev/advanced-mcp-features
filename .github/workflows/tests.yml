@@ -1,4 +1,4 @@
-name: Tests
+THIS SHOULD BE A LINTER ERRORname: Tests
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -8,9 +8,7 @@ on:
   push:
     branches:
       - 'main'
-  pull_request:
-    branches:
-      - 'main'
+  pull_request: {}
 
 jobs:
   tests:
