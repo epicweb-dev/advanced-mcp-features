@@ -1,0 +1,47 @@
+name: Tests
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - 'main'
+  pull_request:
+    branches:
+      - 'main'
+
+jobs:
+  tests:
+    name: 🧪 Run Tests
+    runs-on: ubuntu-latest
+    # Use continue-on-error to ensure this job doesn't fail the workflow
+    continue-on-error: true
+    
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v4
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: 📦 Install dependencies
+        run: npm ci
+        working-directory: ./epicshop
+
+      - name: 🧪 Run tests
+        id: run_tests
+        run: node ./epicshop/test.js ..2
+        continue-on-error: true
+
+      - name: 📊 Test results
+        if: always()
+        run: |
+          if [ "${{ steps.run_tests.outcome }}" == "success" ]; then
+            echo "✅ Tests passed!"
+          else
+            echo "❌ Tests failed, but this won't block deployments"
+          fi
