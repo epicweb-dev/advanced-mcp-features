@@ -34,7 +34,7 @@
 
 - JavaScript/TypeScript experience
 - Node.js experience
-- [Advanced MCP Features](https://www.epicai.pro/mcp-fundamentals) or equivalent
+- [MCP Fundamentals](https://www.epicai.pro/mcp-fundamentals) or equivalent
   experience.
 
 ## Pre-workshop Resources
