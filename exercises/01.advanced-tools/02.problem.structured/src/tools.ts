@@ -41,6 +41,9 @@ export async function initializeTools(agent: EpicMeMCP) {
 				}
 			}
 
+			// 🐨 you'll need to get the entry with the tags added
+			// 💰 const entryWithTags = await agent.db.getEntry(createdEntry.id)
+			
 			// 🐨 create a structuredContent here that matches the outputSchema
 			return {
 				// 🐨 add structuredContent here
