@@ -41,14 +41,18 @@ export async function initializeTools(agent: EpicMeMCP) {
 				}
 			}
 
-			const structuredContent = { entry: createdEntry }
+			// Refetch entry to get updated tags
+			const entryWithTags = await agent.db.getEntry(createdEntry.id)
+			invariant(entryWithTags, `Failed to refetch created entry`)
+			
+			const structuredContent = { entry: entryWithTags }
 			return {
 				structuredContent,
 				content: [
 					createText(
-						`Entry "${createdEntry.title}" created successfully with ID "${createdEntry.id}"`,
+						`Entry "${entryWithTags.title}" created successfully with ID "${entryWithTags.id}"`,
 					),
-					createEntryResourceLink(createdEntry),
+					createEntryResourceLink(entryWithTags),
 					createText(structuredContent),
 				],
 			}

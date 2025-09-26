@@ -330,7 +330,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				openWorldHint: false,
 			} satisfies ToolAnnotations,
 			inputSchema: entryTagIdSchema,
-			// 🐨 add an outputSchema here with a success boolean and a tagEntry that is an entryTagSchema
+			// 🐨 add an outputSchema here with a success boolean and an entryTag that is an entryTagSchema
 		},
 		async ({ entryId, tagId }) => {
 			const tag = await agent.db.getTag(tagId)
@@ -382,7 +382,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 						'If set to > 0, use mock mode and this is the mock wait time in milliseconds',
 					),
 			},
-			// 🐨 add an outputSchema here with a video that includes videoUri (you're on your own here!)
+			// 🐨 add an outputSchema here with a videoUri field (you're on your own here!)
 		},
 		async ({ year = new Date().getFullYear(), mockTime }) => {
 			const entries = await agent.db.getEntries()
