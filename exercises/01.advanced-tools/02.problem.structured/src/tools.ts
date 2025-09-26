@@ -41,6 +41,10 @@ export async function initializeTools(agent: EpicMeMCP) {
 				}
 			}
 
+			// 🐨 refetch entry to get updated tags
+			// 💰 agent.db.getEntry(createdEntry.id)
+			// 💯 add invariant to check if the entry was found
+
 			// 🐨 create a structuredContent here that matches the outputSchema
 			return {
 				// 🐨 add structuredContent here
