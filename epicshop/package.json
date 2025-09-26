@@ -1,17 +1,17 @@
 {
   "type": "module",
   "dependencies": {
-    "@epic-web/workshop-app": "^6.19.7",
-    "@epic-web/workshop-cli": "^6.19.7",
-    "@epic-web/workshop-utils": "^6.19.7",
+    "@epic-web/workshop-app": "^6.33.0",
+    "@epic-web/workshop-cli": "^6.33.0",
+    "@epic-web/workshop-utils": "^6.33.0",
     "chokidar": "^4.0.3",
     "enquirer": "^2.4.1",
     "execa": "^9.6.0",
-    "fs-extra": "^11.3.0",
+    "fs-extra": "^11.3.2",
     "get-port": "^7.1.0",
     "http-proxy": "^1.18.1",
     "match-sorter": "^8.1.0",
-    "p-limit": "^6.2.0",
-    "tsx": "^4.20.3"
+    "p-limit": "^7.1.1",
+    "tsx": "^4.20.5"
   }
 }

@@ -1,3 +1,66 @@
 # Advanced MCP Features 🐡
 
-Thank you for joining me for this workshop. I hope you have a much better understanding of the more advanced capabilities of MCP servers!
+<EpicVideo url="https://www.epicai.pro/workshops/day-3-4-advanced-mcp-features/outro-you-ve-finished-advanced-mcp~ly753" />
+
+You made it all the way through! This workshop took you beyond the fundamentals and into the capabilities that make MCP servers powerful, adaptable, and genuinely helpful in real-world AI-assisted workflows.
+
+## What you've learned
+
+### 1. Advanced Tools
+
+- **Annotations:** You learned to communicate intent and risk with `readOnlyHint`, `destructiveHint`, `idempotentHint`, and `openWorldHint`, improving UX and trust without confusing them for security controls.
+- **Structured Output & Output Schemas:** You defined schemas to guarantee machine-parseable results (and saw how invalid shapes fail fast). This unlocks safer automation and downstream chaining.
+- **Pragmatic Guidelines:** You adopted practical heuristics (e.g. idempotency focuses on core outcome, not incidental timestamps) so annotations remain meaningful instead of pedantic.
+
+### 2. Elicitation
+
+- **Human-in-the-Loop Input Requests:** You implemented server-initiated, structured follow-up questions mid-tool execution using `elicitation/create`.
+- **Outcome Handling:** You handled all result paths (`accept`, `decline`, `cancel`) cleanly.
+- **Responsible Use:** You learned to reserve elicitation for genuinely missing contextual data. Not as a crutch for weak initial prompts.
+
+### 3. Sampling
+
+- **Borrowing the User's Model:** Instead of bundling your own API integrations, you requested completions through the client. Respecting user controls, permissions, and model preferences.
+- **Prompt Crafting:** You structured `systemPrompt` + message history for clarity, determinism, and safety (plus using examples and formatting expectations).
+- **Server-Side Logging:** You surfaced debug + informational events back to clients to aid transparency and troubleshooting.
+- **Use Cases:** Automated tag suggestions, summarization, and other “assistive” behaviors that keep users in the loop.
+
+### 4. Long Running Tasks
+
+- **Progress Notifications:** You emitted `notifications/progress` tied to a `progressToken`, giving users visibility into multi-step operations.
+- **Cancellation Flow:** You honored `notifications/cancelled`, wiring cleanup with `AbortController` (and ensuring resource release / early exit paths).
+- **Resilient Async Patterns:** You separated work orchestration from lifecycle signals for maintainability and correctness.
+
+### 5. Changes (Dynamic Capabilities)
+
+- **list_changed Notifications:** You notified clients when tools, prompts, or resources appeared, disappeared, or changed. Keeping UIs reactive without manual refresh.
+- **Resource Templates vs. Instances:** You distinguished template availability (enable/disable) from the evolving set of expansions (e.g. DB rows, files) and triggered updates accordingly.
+- **Subscriptions:** You pushed granular `resources/updated` messages only to interested clients, enabling efficient, real-time views.
+- **Adaptive Servers:** You embraced dynamic capability surfaces. Mirroring real application states (auth, data presence, feature flags, external systems).
+
+---
+
+### Putting It All Together
+
+Across these exercises you built a server that can:
+
+- Advertise rich, self-describing tools with trustworthy semantics.
+- Produce and validate structured results ready for chaining or UI rendering.
+- Ask users clarifying questions at exactly the right moment.
+- Leverage the user's own model access for generation instead of hard-coding providers.
+- Stream transparency via logs, progress, and cancellation.
+- Stay in sync with clients as its surface area evolves in real time.
+
+### Suggested Next Steps
+
+1. **Refine Prompts:** Introduce test fixtures for sampling prompts. Assert on shape + tone of generated outputs.
+2. **Add Safety Layers:** Layer classification or content filtering around generative outputs where needed.
+3. **Observability:** Pipe server logs to structured tracing/metrics for production use (keeping privacy in mind).
+4. **Capability Versioning:** Start tagging major tool/prompt contract shifts to help clients adapt gracefully.
+5. **Extend Resources:** Expose more dynamic domains (user workspaces, recent activity feeds, external APIs) with subscriptions where latency matters.
+
+### Conclusion
+
+You now have the patterns to build adaptive, responsible, user-centric MCP servers. Keep iterating: optimize prompts, tighten schemas, and observe how real users (and their assistants) behave. Small refinements compound quickly.
+
+Great work pushing through the advanced material. Looking forward to what you build next!

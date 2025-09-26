@@ -47,7 +47,9 @@ async function setupClient({ capabilities = {} } = {}) {
 		EPIC_ME_DB_PATH,
 		async [Symbol.asyncDispose]() {
 			await client.transport?.close()
-			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {})
+			// give things a moment to release locks and whatnot
+			await new Promise((r) => setTimeout(r, 100))
+			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {}) // ignore missing file
 		},
 	}
 }

@@ -46,7 +46,9 @@ async function setupClient({ capabilities = {} } = {}) {
 		EPIC_ME_DB_PATH,
 		async [Symbol.asyncDispose]() {
 			await client.transport?.close()
-			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {})
+			// give things a moment to release locks and whatnot
+			await new Promise((r) => setTimeout(r, 100))
+			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {}) // ignore missing file
 		},
 	}
 }
@@ -650,10 +652,6 @@ test('ListChanged notification: resources', async () => {
 
 	// Verify that resources are properly available
 	const resourceUris = enabledResources.resources.map((r) => r.uri)
-	expect(
-		resourceUris.some((uri) => uri.includes('entries')),
-		'🚨 Should have entry resources available after creating entries',
-	).toBe(true)
 	expect(
 		resourceUris.some((uri) => uri.includes('tags')),
 		'🚨 Should have tag resources available after creating tags',

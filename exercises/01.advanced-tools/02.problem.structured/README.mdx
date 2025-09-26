@@ -1,5 +1,7 @@
 # Structured Output
 
+<EpicVideo url="https://www.epicai.pro/workshops/day-3-4-advanced-mcp-features/structured-output~egacc" />
+
 👨‍💼 When users open EpicMe, they expect their memories, reflections, and daily adventures to be organized, discoverable, and (most importantly) reliable. Imagine a user writing a heartfelt entry about their day, only to have it saved as a jumbled scroll of text! That would be chaos in their personal archive.
 
 To ensure every tool in EpicMe returns information that is both predictable and easy for the UI (and our friendly LLM assistants) to understand, we use **structured output**. This means every tool response follows a clear, machine-validated shape—no more wild guesses or mysterious blobs of data.
@@ -27,7 +29,7 @@ async (input) => {
 
 Here's what a structured output response looks like:
 
-```json nocopy
+```json filename=server-response.json nocopy
 {
 	"content": [
 		{

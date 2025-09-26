@@ -1,5 +1,7 @@
 # Simple Sampling
 
+<EpicVideo url="https://www.epicai.pro/workshops/day-3-4-advanced-mcp-features/simple-sampling~5yj44" />
+
 👨‍💼 Our users love the prompt functionality, but they asked why the LLM couldn't
 just suggest tags when they create the post and we thought that's a great idea!
 
@@ -24,7 +26,7 @@ prompt for the LLM in the next step.
   message that references the new journal entry's ID (we'll enhance this next).
 - Set a reasonable `maxTokens` value for the response.
 - Parse the model's response using a provided Zod schema.
-- Log the result to the console so you can inspect the model's output.
+- Send a notification with the result so you can see the model's output.
 
 And don't forget to call it when the user creates a new journal entry!
 
@@ -41,12 +43,54 @@ if (!capabilities?.sampling) {
 // Proceed with sampling request here
 ```
 
+And here's an example of how to send a sampling request:
+
+```ts
+const result = await agent.server.server.createMessage({
+	// the system prompt is used to explain to the LLM it's purpose
+	systemPrompt: '...',
+	messages: [
+		{
+			role: 'user',
+			content: {
+				type: 'text',
+				// the user message is the input to the LLM
+				text: '...',
+			},
+		},
+	],
+	maxTokens: 100,
+})
+```
+
 The `maxTokens` option references the max tokens the model should return.
 
 <callout-warning>
 	The `system prompt` + `messages` + `OUTPUT MESSAGE` can't exceed the context
 	window size of the model your user is using.
 </callout-warning>
+
+Here's an example of how to send a notification:
+
+```ts
+// void is to communicate we don't care about the return value. Fire and forget.
+void agent.server.server.sendLoggingMessage({
+	level: 'info', // "error" | "debug" | "info" | "notice" | "warning" | "critical" | "alert" | "emergency"
+	// data can be any JSON-serializable value
+	data: {
+		a: 1,
+		otherStuff: '...',
+	},
+})
+```
+
+Check the specification for more info:
+https://modelcontextprotocol.io/specification/2025-06-18/server/utilities/logging#log-message-notifications
+
+The SDK handles keeping track of the logging level and only sending messages if
+they are within the set logging level.
+
+---
 
 This step will help you get comfortable with the basic request/response flow for
 sampling in MCP, and set the stage for more advanced prompt engineering in the
@@ -60,7 +104,7 @@ To test this in the MCP inspector:
 - check the "Sampling" navigation tab and you should have a sampling request
 - at this point, YOU are the LLM. You can copy paste this into your response:
 
-```json
+```json filename=example-sampling-client-response.json
 {
 	"model": "stub-model",
 	"stopReason": "endTurn",

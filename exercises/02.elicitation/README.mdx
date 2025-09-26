@@ -1,5 +1,7 @@
 # Elicitation
 
+<EpicVideo url="https://www.epicai.pro/workshops/day-3-4-advanced-mcp-features/intro~gs3h2" />
+
 Modern AI applications often need to collect structured input from users at key moments in a workflow. **Elicitation** in the Model Context Protocol (MCP) standardizes this process, allowing servers to request information from users through the client, using a well-defined schema and a secure, user-friendly interaction model.
 
 Elicitation enables interactive workflows like confirming destructive actions, collecting additional details, or guiding users through multi-step forms by letting the server pause and ask the user for exactly what it needs, in a structured way.
@@ -51,7 +53,7 @@ Imagine an online pizza ordering system. After a user selects their pizza and to
 1. The user submits their pizza order.
 2. The server sends an `elicitation/create` request:
 
-```json
+```json filename=server-request.json nocopy
 {
 	"jsonrpc": "2.0",
 	"id": 1,
@@ -83,7 +85,7 @@ The client presents this to the user, who can:
 
 Here's what the response from the client might look like:
 
-```json
+```json filename=client-response.json nocopy
 {
 	"jsonrpc": "2.0",
 	"id": 1,

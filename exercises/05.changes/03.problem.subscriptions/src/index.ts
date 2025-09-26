@@ -21,6 +21,7 @@ export class EpicMeMCP {
 				// 🐨 add the `subscribe` capability to the `resources` capability
 				resources: { listChanged: true },
 				completions: {},
+				logging: {},
 				prompts: { listChanged: true },
 			},
 			instructions: `

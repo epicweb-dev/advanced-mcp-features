@@ -13,6 +13,22 @@ import {
 import { type EpicMeMCP } from './index.ts'
 import { createWrappedVideo } from './video.ts'
 
+// 🧝‍♀️ Because the tool annotations defaults and values are confusing, I'm giving
+// this to you to help you use them correctly!
+type ToolAnnotations = {
+	// defaults to true, so only allow false
+	openWorldHint?: false
+} & (
+	| {
+			// when readOnlyHint is true, none of the other annotations can be changed
+			readOnlyHint: true
+	  }
+	| {
+			destructiveHint?: false // Only allow false (default is true)
+			idempotentHint?: true // Only allow true (default is false)
+	  }
+)
+
 export async function initializeTools(agent: EpicMeMCP) {
 	agent.server.registerTool(
 		'create_entry',
@@ -21,6 +37,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Create a new journal entry',
 			// 🐨 add the appropriate annotations here for create_entry.
 			// 💰 Is this destructive? Is it open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: createEntryInputSchema,
 		},
 		async (entry) => {
@@ -52,6 +69,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Get a journal entry by ID',
 			// 🐨 add the appropriate annotations here for get_entry.
 			// 💰 Is this read-only? Is it open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: entryIdSchema,
 		},
 		async ({ id }) => {
@@ -70,6 +88,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'List all journal entries',
 			// 🐨 add the appropriate annotations here for list_entries.
 			// 💰 Is this read-only? Is it open world?
+			annotations: {} satisfies ToolAnnotations,
 		},
 		async () => {
 			const entries = await agent.db.getEntries()
@@ -91,6 +110,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				'Update a journal entry. Fields that are not provided (or set to undefined) will not be updated. Fields that are set to null or any other value will be updated.',
 			// 🐨 add the appropriate annotations here for update_entry.
 			// 💰 Is this destructive? Idempotent? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: updateEntryInputSchema,
 		},
 		async ({ id, ...updates }) => {
@@ -115,6 +135,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Delete a journal entry',
 			// 🐨 add the appropriate annotations here for delete_entry.
 			// 💰 Is this idempotent? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: entryIdSchema,
 		},
 		async ({ id }) => {
@@ -140,6 +161,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Create a new tag',
 			// 🐨 add the appropriate annotations here for create_tag.
 			// 💰 Is this destructive? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: createTagInputSchema,
 		},
 		async (tag) => {
@@ -162,6 +184,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Get a tag by ID',
 			// 🐨 add the appropriate annotations here for get_tag.
 			// 💰 Is this read-only? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: tagIdSchema,
 		},
 		async ({ id }) => {
@@ -180,6 +203,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'List all tags',
 			// 🐨 add the appropriate annotations here for list_tags.
 			// 💰 Is this read-only? Open world?
+			annotations: {} satisfies ToolAnnotations,
 		},
 		async () => {
 			const tags = await agent.db.getTags()
@@ -197,6 +221,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Update a tag',
 			// 🐨 add the appropriate annotations here for update_tag.
 			// 💰 Is this destructive? Idempotent? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: updateTagInputSchema,
 		},
 		async ({ id, ...updates }) => {
@@ -219,6 +244,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Delete a tag',
 			// 🐨 add the appropriate annotations here for delete_tag.
 			// 💰 Is this idempotent? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: tagIdSchema,
 		},
 		async ({ id }) => {
@@ -243,6 +269,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			description: 'Add a tag to an entry',
 			// 🐨 add the appropriate annotations here for add_tag_to_entry.
 			// 💰 Is this destructive? Idempotent? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: entryTagIdSchema,
 		},
 		async ({ entryId, tagId }) => {
@@ -274,6 +301,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				'Create a "wrapped" video highlighting stats of your journaling this year',
 			// 🐨 add the appropriate annotations here for create_wrapped_video.
 			// 💰 Is this destructive? Open world?
+			annotations: {} satisfies ToolAnnotations,
 			inputSchema: {
 				year: z
 					.number()

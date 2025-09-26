@@ -37,7 +37,9 @@ async function setupClient({ capabilities = {} } = {}) {
 		EPIC_ME_DB_PATH,
 		async [Symbol.asyncDispose]() {
 			await client.transport?.close()
-			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {})
+			// give things a moment to release locks and whatnot
+			await new Promise((r) => setTimeout(r, 100))
+			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {}) // ignore missing file
 		},
 	}
 }
@@ -157,12 +159,7 @@ test('Tool annotations and structured output', async () => {
 	expect(
 		deleteEntryTool.annotations,
 		'🚨 delete_entry missing annotations',
-	).toEqual(
-		expect.objectContaining({
-			idempotentHint: true,
-			openWorldHint: false,
-		}),
-	)
+	).toEqual(expect.objectContaining({ openWorldHint: false }))
 	expect(
 		deleteEntryTool.outputSchema,
 		'🚨 delete_entry missing outputSchema',
@@ -174,12 +171,7 @@ test('Tool annotations and structured output', async () => {
 	expect(
 		deleteTagTool.annotations,
 		'🚨 delete_tag missing annotations',
-	).toEqual(
-		expect.objectContaining({
-			idempotentHint: true,
-			openWorldHint: false,
-		}),
-	)
+	).toEqual(expect.objectContaining({ openWorldHint: false }))
 	expect(
 		deleteTagTool.outputSchema,
 		'🚨 delete_tag missing outputSchema',

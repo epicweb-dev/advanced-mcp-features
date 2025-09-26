@@ -26,7 +26,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				destructiveHint: false,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: createEntryInputSchema,
 			// 🐨 add an outputSchema here with an entry that is an entryWithTagsSchema
 		},
@@ -67,7 +67,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: entryIdSchema,
 			// 🐨 add an outputSchema here with an entry that is an entrySchema
 		},
@@ -94,7 +94,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			// 🐨 add an outputSchema here with entries that is an array of entryWithTagsSchema
 		},
 		async () => {
@@ -122,7 +122,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				destructiveHint: false,
 				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: updateEntryInputSchema,
 			// 🐨 add an outputSchema here with an entry that is an entryWithTagsSchema
 		},
@@ -151,9 +151,8 @@ export async function initializeTools(agent: EpicMeMCP) {
 			title: 'Delete Entry',
 			description: 'Delete a journal entry',
 			annotations: {
-				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: entryIdSchema,
 			// 🐨 add an outputSchema here with success (boolean) and entry (entryWithTagsSchema)
 		},
@@ -185,7 +184,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				destructiveHint: false,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: createTagInputSchema,
 			// 🐨 add an outputSchema here with a tag that is a tagSchema
 		},
@@ -214,7 +213,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: tagIdSchema,
 			// 🐨 add an outputSchema here with a tag that is a tagSchema
 		},
@@ -242,7 +241,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			// 🐨 add an outputSchema here with tags that is an array of tagSchema
 		},
 		async () => {
@@ -269,7 +268,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				destructiveHint: false,
 				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: updateTagInputSchema,
 			// 🐨 add an outputSchema here with a tag that is a tagSchema
 		},
@@ -296,9 +295,8 @@ export async function initializeTools(agent: EpicMeMCP) {
 			title: 'Delete Tag',
 			description: 'Delete a tag',
 			annotations: {
-				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: tagIdSchema,
 			// 🐨 add an outputSchema here with success (boolean) and tag (tagSchema)
 		},
@@ -330,7 +328,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				destructiveHint: false,
 				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: entryTagIdSchema,
 			// 🐨 add an outputSchema here with a tag that is a tagSchema and an entry that is an entrySchema
 		},
@@ -369,7 +367,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				destructiveHint: false,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: {
 				year: z
 					.number()
@@ -421,6 +419,20 @@ export async function initializeTools(agent: EpicMeMCP) {
 		},
 	)
 }
+
+type ToolAnnotations = {
+	// defaults to true, so only allow false
+	openWorldHint?: false
+} & (
+	| {
+			// when readOnlyHint is true, none of the other annotations can be changed
+			readOnlyHint: true
+	  }
+	| {
+			destructiveHint?: false // Only allow false (default is true)
+			idempotentHint?: true // Only allow true (default is false)
+	  }
+)
 
 function createText(text: unknown): CallToolResult['content'][number] {
 	if (typeof text === 'string') {

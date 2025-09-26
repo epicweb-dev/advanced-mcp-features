@@ -1,5 +1,7 @@
 # Long Running Tasks
 
+<EpicVideo url="https://www.epicai.pro/workshops/day-3-4-advanced-mcp-features/intro~wjyc8" />
+
 In this exercise, you'll learn how to handle long-running tasks in the context of the Model Context Protocol (MCP), with a focus on **progress reporting** and **cancellation**. (As a bonus, you'll also get hands-on experience with JavaScript's `AbortController` and signals, which are essential for managing asynchronous operations that can be cancelled).
 
 ## Background
@@ -37,12 +39,14 @@ sequenceDiagram
 
 **Client Request with Progress Token:**
 
-```json
+```json filename=client-request.json nocopy
 {
 	"jsonrpc": "2.0",
 	"id": 5,
-	"method": "play_fetch",
+	"method": "tools/call",
 	"params": {
+		"name": "play_fetch",
+		"arguments": {},
 		"_meta": {
 			"progressToken": "abc123"
 		}
@@ -52,7 +56,7 @@ sequenceDiagram
 
 **Server Progress Notification:**
 
-```json
+```json filename=server-progress-notification-request.json nocopy
 {
 	"jsonrpc": "2.0",
 	"method": "notifications/progress",
@@ -67,7 +71,7 @@ sequenceDiagram
 
 **Server Final Response:**
 
-```json
+```json filename=server-response.json nocopy
 {
 	"jsonrpc": "2.0",
 	"id": 5,
@@ -113,7 +117,7 @@ sequenceDiagram
 
 **Client Cancellation Notification:**
 
-```json
+```json filename=client-cancelled-notification-request.json nocopy
 {
 	"jsonrpc": "2.0",
 	"method": "notifications/cancelled",

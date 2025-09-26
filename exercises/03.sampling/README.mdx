@@ -1,17 +1,21 @@
 # Sampling
 
+<EpicVideo url="https://www.epicai.pro/workshops/day-3-4-advanced-mcp-features/intro~0dyu8" />
+
 Modern AI applications often need to generate new content (whether that's text,
 images, or more) on demand. This process is called **sampling**: asking a
 language model (or other generative model) to produce a completion or response
 based on a prompt and some context.
 
+In this exercise, you'll also learn about **server-side logging** - how to send
+log messages from your MCP server to the client for debugging and monitoring
+purposes.
+
 This one is a tricky one to understand. Think of it like you're "borrowing" the
 user's LLM to generate content for them.
 [Read about this idea here](https://www.epicai.pro/how-to-use-sampling-in-mcp-borrow-the-users-llm-o7nk3).
 
-It may be helpful for you to watch a demo of this working:
-
-<EpicVideo url="https://www.epicai.pro/using-mcp-sampling-in-vs-code-insiders-dd12d" />
+You can watch another [demo of this working here](https://www.epicai.pro/using-mcp-sampling-in-vs-code-insiders-dd12d).
 
 <callout-success>
 	From [the MCP
@@ -48,8 +52,7 @@ sequenceDiagram
 
 Here's a simple example of a sampling request and response using MCP:
 
-```json
-// Request
+```json filename=server-request.json nocopy
 {
 	"jsonrpc": "2.0",
 	"id": 1,
@@ -70,8 +73,7 @@ Here's a simple example of a sampling request and response using MCP:
 }
 ```
 
-```json
-// Response
+```json filename=client-response.json nocopy
 {
 	"jsonrpc": "2.0",
 	"id": 1,
@@ -119,8 +121,42 @@ capability. You'll see how to:
 - Parse and validate the model's response.
 - Use sampling to automate tasks in your application, such as suggesting tags
   for new journal entries.
+- Send log messages from your server to the client for debugging and monitoring.
 
 You'll also explore how to craft effective prompts for the model, and how to
 structure your requests and responses for reliability and safety.
 
+## Server-Side Logging
+
+As part of this exercise, you'll also learn about MCP's logging capabilities. The `sendLoggingMessage` function allows your server to send log messages to the client, which can be useful for:
+
+- **Debugging**: Send information about what your server is doing
+- **Monitoring**: Track the flow of requests and responses
+- **User feedback**: Provide insights into the sampling process
+
+Log messages can have different levels (error, debug, info, notice, warning, critical, alert, emergency) and can include any JSON-serializable data.
+
+### Log Message Examples
+
+Here are some examples of log messages you might send during sampling:
+
+```json filename=info-log-example.json nocopy
+{
+	"jsonrpc": "2.0",
+	"method": "notifications/message",
+	"params": {
+		"level": "info",
+		"logger": "sms-sender",
+		"data": {
+			"message": "Text message sent",
+			"recipient": "1234567890",
+			"content": "Hello, how are you?"
+		}
+	}
+}
+```
+
+In the MCP inspector, this will show up in the server notifications feed. The host application may or may not show logs to the user.
+
 - 📜 [MCP Sampling Spec](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling)
+- 📜 [MCP Logging Documentation](https://modelcontextprotocol.io/specification/2025-06-18/server/utilities/logging)

@@ -7,6 +7,7 @@ import { initializeTools } from './tools.ts'
 
 export class EpicMeMCP {
 	db: DB
+	// 🐨 add a state object with a loggingLevel property set to 'info'
 	server = new McpServer(
 		{
 			name: 'epicme',
@@ -18,6 +19,7 @@ export class EpicMeMCP {
 				tools: {},
 				resources: {},
 				completions: {},
+				// 🐨 add the `logging` capability to the `capabilities` object
 				prompts: {},
 			},
 			instructions: `

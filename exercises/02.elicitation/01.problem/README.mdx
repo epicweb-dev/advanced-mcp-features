@@ -1,5 +1,7 @@
 # Elicit Confirmation
 
+<EpicVideo url="https://www.epicai.pro/workshops/day-3-4-advanced-mcp-features/elicit-confirmation~oaha2" />
+
 👨‍💼 When users interact with our system, they sometimes initiate actions that have significant consequences (like deleting a tag or entry). To ensure users don't accidentally lose something important, we need to pause and ask for explicit confirmation before proceeding.
 
 This is where **elicitation** comes in. Instead of making assumptions, our MCP server can make a structured elicitation request. This lets us ask the user for confirmation in a way that's both clear and robust, and ensures the server only proceeds if the user truly intends to take the action.
@@ -68,5 +70,3 @@ Test this one out by using the `delete_tag` tool.
 
 🐨 Kody will be there in <InlineFile file="src/tools.ts" /> to help you
 implement this.
-
-The MCP Inspector [does not support elicitation yet](https://github.com/modelcontextprotocol/inspector/issues/524), so you can check that our capabilities check is working by running the `delete_tag` tool, but to verify your elicitation is working, you'll need to run the tests.

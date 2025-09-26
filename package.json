@@ -16,10 +16,17 @@
       "hidedevtools": "1",
       "hideNavigation": "1"
     },
+    "onboardingVideo": "https://www.epicai.pro/get-started-with-epic-ai-workshops",
     "product": {
       "host": "www.epicai.pro",
+      "slug": "day-3-4-advanced-mcp-features",
       "displayName": "EpicAI.pro",
-      "displayNameShort": "Epic AI"
+      "displayNameShort": "Epic AI",
+      "discordChannelId": "1409600723716411494",
+      "discordTags": [
+        "1409601169801871410",
+        "1409601303373549689"
+      ]
     }
   },
   "type": "module",
@@ -27,6 +34,7 @@
     "postinstall": "cd ./epicshop && npm install",
     "start": "npx --prefix ./epicshop epicshop start",
     "dev": "npx --prefix ./epicshop epicshop start",
+    "update": "npx --prefix ./epicshop epicshop update",
     "dev:mcp": "node ./epicshop/run.js",
     "inspect": "npx @kentcdodds/tmp-modelcontextprotocol_inspector",
     "test": "npm run test --silent --prefix playground",
@@ -35,7 +43,7 @@
     "test:e2e:run": "npm run test:e2e:run --silent --prefix playground",
     "setup": "node ./epicshop/setup.js",
     "setup:custom": "node ./epicshop/setup-custom.js",
-    "lint": "eslint .",
+    "lint": "eslint . --concurrency=auto",
     "format": "prettier --write .",
     "typecheck": "tsc -b",
     "validate:all": "npm-run-all --parallel --print-label --print-name --continue-on-error test:all lint typecheck"
@@ -54,10 +62,10 @@
     "git": ">=2.18.0"
   },
   "devDependencies": {
-    "@epic-web/config": "^1.21.0",
-    "eslint": "^9.32.0",
+    "@epic-web/config": "^1.21.3",
+    "eslint": "^9.35.0",
     "prettier": "^3.6.2",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "prettier": "@epic-web/config/prettier"
 }

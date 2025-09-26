@@ -13,6 +13,20 @@ import {
 import { type EpicMeMCP } from './index.ts'
 import { createWrappedVideo } from './video.ts'
 
+type ToolAnnotations = {
+	// defaults to true, so only allow false
+	openWorldHint?: false
+} & (
+	| {
+			// when readOnlyHint is true, none of the other annotations can be changed
+			readOnlyHint: true
+	  }
+	| {
+			destructiveHint?: false // Only allow false (default is true)
+			idempotentHint?: true // Only allow true (default is false)
+	  }
+)
+
 export async function initializeTools(agent: EpicMeMCP) {
 	agent.server.registerTool(
 		'create_entry',
@@ -22,7 +36,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				destructiveHint: false,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: createEntryInputSchema,
 		},
 		async (entry) => {
@@ -55,7 +69,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: entryIdSchema,
 		},
 		async ({ id }) => {
@@ -75,7 +89,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 		},
 		async () => {
 			const entries = await agent.db.getEntries()
@@ -99,7 +113,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				destructiveHint: false,
 				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: updateEntryInputSchema,
 		},
 		async ({ id, ...updates }) => {
@@ -123,9 +137,8 @@ export async function initializeTools(agent: EpicMeMCP) {
 			title: 'Delete Entry',
 			description: 'Delete a journal entry',
 			annotations: {
-				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: entryIdSchema,
 		},
 		async ({ id }) => {
@@ -152,7 +165,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				destructiveHint: false,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: createTagInputSchema,
 		},
 		async (tag) => {
@@ -176,7 +189,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: tagIdSchema,
 		},
 		async ({ id }) => {
@@ -196,7 +209,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				readOnlyHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 		},
 		async () => {
 			const tags = await agent.db.getTags()
@@ -216,7 +229,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				destructiveHint: false,
 				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: updateTagInputSchema,
 		},
 		async ({ id, ...updates }) => {
@@ -238,9 +251,8 @@ export async function initializeTools(agent: EpicMeMCP) {
 			title: 'Delete Tag',
 			description: 'Delete a tag',
 			annotations: {
-				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: tagIdSchema,
 		},
 		async ({ id }) => {
@@ -267,7 +279,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				destructiveHint: false,
 				idempotentHint: true,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: entryTagIdSchema,
 		},
 		async ({ entryId, tagId }) => {
@@ -300,7 +312,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 			annotations: {
 				destructiveHint: false,
 				openWorldHint: false,
-			},
+			} satisfies ToolAnnotations,
 			inputSchema: {
 				year: z
 					.number()

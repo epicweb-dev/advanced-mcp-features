@@ -80,6 +80,7 @@ export async function initializeResources(agent: EpicMeMCP) {
 	const entryResource = agent.server.registerResource(
 		'entry',
 		new ResourceTemplate('epicme://entries/{id}', {
+			list: undefined,
 			complete: {
 				async id(value) {
 					const entries = await agent.db.getEntries()
@@ -87,16 +88,6 @@ export async function initializeResources(agent: EpicMeMCP) {
 						.map((entry) => entry.id.toString())
 						.filter((id) => id.includes(value))
 				},
-			},
-			list: async () => {
-				const entries = await agent.db.getEntries()
-				return {
-					resources: entries.map((entry) => ({
-						name: entry.title,
-						uri: `epicme://entries/${entry.id}`,
-						mimeType: 'application/json',
-					})),
-				}
 			},
 		}),
 		{

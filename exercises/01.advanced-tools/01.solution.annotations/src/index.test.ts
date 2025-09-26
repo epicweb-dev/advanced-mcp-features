@@ -36,7 +36,9 @@ async function setupClient({ capabilities = {} } = {}) {
 		EPIC_ME_DB_PATH,
 		async [Symbol.asyncDispose]() {
 			await client.transport?.close()
-			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {})
+			// give things a moment to release locks and whatnot
+			await new Promise((r) => setTimeout(r, 100))
+			await fs.unlink(EPIC_ME_DB_PATH).catch(() => {}) // ignore missing file
 		},
 	}
 }
@@ -161,18 +163,13 @@ test('Tool annotations', async () => {
 		}),
 	)
 
-	// Check delete_entry annotations (idempotent)
+	// Check delete_entry annotations
 	const deleteEntryTool = toolMap['delete_entry']
 	invariant(deleteEntryTool, '🚨 delete_entry tool not found')
 	expect(
 		deleteEntryTool.annotations,
 		'🚨 delete_entry missing annotations',
-	).toEqual(
-		expect.objectContaining({
-			idempotentHint: true,
-			openWorldHint: false,
-		}),
-	)
+	).toEqual(expect.objectContaining({ openWorldHint: false }))
 
 	// Check get_tag annotations (read-only)
 	const getTagTool = toolMap['get_tag']
@@ -214,12 +211,7 @@ test('Tool annotations', async () => {
 	expect(
 		deleteTagTool.annotations,
 		'🚨 delete_tag missing annotations',
-	).toEqual(
-		expect.objectContaining({
-			idempotentHint: true,
-			openWorldHint: false,
-		}),
-	)
+	).toEqual(expect.objectContaining({ openWorldHint: false }))
 
 	// Check add_tag_to_entry annotations (idempotent)
 	const addTagToEntryTool = toolMap['add_tag_to_entry']

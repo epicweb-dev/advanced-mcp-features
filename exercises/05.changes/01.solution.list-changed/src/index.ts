@@ -18,6 +18,7 @@ export class EpicMeMCP {
 				tools: {},
 				resources: {},
 				completions: {},
+				logging: {},
 				prompts: { listChanged: true },
 			},
 			instructions: `
