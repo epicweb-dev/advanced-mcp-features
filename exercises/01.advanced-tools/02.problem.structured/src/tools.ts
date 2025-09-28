@@ -99,7 +99,7 @@ export async function initializeTools(agent: EpicMeMCP) {
 				readOnlyHint: true,
 				openWorldHint: false,
 			} satisfies ToolAnnotations,
-			// 🐨 add an outputSchema here with entries that is an array of entryWithTagsSchema
+			// 🐨 add an outputSchema here with entries that is an array of entrySchema
 		},
 		async () => {
 			const entries = await agent.db.getEntries()
