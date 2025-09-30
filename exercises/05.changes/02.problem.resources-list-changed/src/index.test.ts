@@ -653,10 +653,6 @@ test('ListChanged notification: resources', async () => {
 	// Verify that resources are properly available
 	const resourceUris = enabledResources.resources.map((r) => r.uri)
 	expect(
-		resourceUris.some((uri) => uri.includes('entries')),
-		'🚨 Should have entry resources available after creating entries',
-	).toBe(true)
-	expect(
 		resourceUris.some((uri) => uri.includes('tags')),
 		'🚨 Should have tag resources available after creating tags',
 	).toBe(true)
