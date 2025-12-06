@@ -11,8 +11,12 @@ for a new journal entry.
 
 - Update your sampling request to provide the LLM with structured information:
   the new journal entry, its current tags, and all existing tags in the system.
-- Change the user message to send this data as JSON (`application/json`), not
-  plain text.
+- Change the user message to send this data as JSON (the `text` field should
+  contain a JSON string), not plain text.
+  🦉 Note: At the time of the video recordings, a `mimeType` of
+  `application/json` was allowed for text content, but that requirement has
+  since been removed from the MCP specification. The SDK will strip `mimeType`
+  from text content, so you should not include it.
 - Write a clear, detailed system prompt that instructs the LLM to make a list of
   suggested tags that are relevant to the entry and not already applied. Make
   certain it's instructed on the format of the response.

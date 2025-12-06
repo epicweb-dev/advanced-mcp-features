@@ -18,7 +18,6 @@ We'll put more in here later...
 				role: 'user',
 				content: {
 					type: 'text',
-					mimeType: 'text/plain',
 					text: `
 You just created a new journal entry with the id ${entryId}.
 

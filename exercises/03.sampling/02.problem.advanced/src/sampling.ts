@@ -42,8 +42,8 @@ We'll put more in here later...
 				role: 'user',
 				content: {
 					type: 'text',
-					// 🐨 change this to application/json
-					mimeType: 'text/plain',
+					// 🦉 NOTE: at the time of the video recording, a mimeType of text/plain was required. That requirement has since been removed!
+
 					// 🐨 Stringify JSON with the entry, currentTags, and existingTags
 					text: `
 You just created a new journal entry with the id ${entryId}.

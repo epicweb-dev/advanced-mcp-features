@@ -229,8 +229,7 @@ test('Simple Sampling', async () => {
 	await using setup = await setupClient({ capabilities: { sampling: {} } })
 	const { client } = setup
 	const messageResultDeferred = await deferred<CreateMessageResult>()
-	const messageRequestDeferred =
-		await deferred<CreateMessageRequest>()
+	const messageRequestDeferred = await deferred<CreateMessageRequest>()
 
 	client.setRequestHandler(CreateMessageRequestSchema, (r) => {
 		messageRequestDeferred.resolve(r)
@@ -276,7 +275,6 @@ test('Simple Sampling', async () => {
 						content: expect.objectContaining({
 							type: 'text',
 							text: expect.any(String),
-							mimeType: expect.any(String),
 						}),
 					}),
 				]),

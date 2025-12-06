@@ -231,8 +231,7 @@ test('Advanced Sampling', async () => {
 	await using setup = await setupClient({ capabilities: { sampling: {} } })
 	const { client } = setup
 	const messageResultDeferred = await deferred<CreateMessageResult>()
-	const messageRequestDeferred =
-		await deferred<CreateMessageRequest>()
+	const messageRequestDeferred = await deferred<CreateMessageRequest>()
 
 	client.setRequestHandler(CreateMessageRequestSchema, (r) => {
 		messageRequestDeferred.resolve(r)
@@ -282,7 +281,6 @@ test('Advanced Sampling', async () => {
 							content: expect.objectContaining({
 								type: 'text',
 								text: expect.stringMatching(/entry/i),
-								mimeType: 'application/json',
 							}),
 						}),
 					]),
@@ -311,12 +309,10 @@ test('Advanced Sampling', async () => {
 			params && 'messages' in params && Array.isArray(params.messages),
 			'🚨 messages array is required',
 		)
-		const userMessage = params.messages.find((m) => m.role === 'user') as unknown as { content: { mimeType: string, text: string } }
+		const userMessage = params.messages.find(
+			(m) => m.role === 'user',
+		) as unknown as { content: { text: string } }
 		invariant(userMessage, '🚨 User message is required')
-		invariant(
-			userMessage.content.mimeType === 'application/json',
-			'🚨 Content should be JSON for structured data',
-		)
 
 		// 🚨 Validate the JSON structure contains required fields
 		invariant(
@@ -352,7 +348,7 @@ test('Advanced Sampling', async () => {
 			'🚨   2. Create a meaningful systemPrompt that includes examples of the expected output format (array of tag objects, with examples for existing and new tags).',
 		)
 		console.error(
-			'🚨   3. Structure the user message as JSON with mimeType: "application/json".',
+			'🚨   3. Structure the user message as JSON (the text field should contain valid JSON).',
 		)
 		console.error(
 			'🚨   4. Include both entry data AND existingTags context in the JSON (e.g., { entry: {...}, existingTags: [...] }).',
@@ -370,10 +366,6 @@ test('Advanced Sampling', async () => {
 		const params = request.params
 		if (params) {
 			console.error(`🚨 Current maxTokens: ${params.maxTokens} (should be >50)`)
-			console.error(
-				// @ts-ignore 🤷‍♂️ pretty sure this is correct
-				`🚨 Current mimeType: ${params.messages?.[0]?.content?.mimeType} (should be "application/json")`,
-			)
 			console.error(
 				`🚨 SystemPrompt contains "example": ${typeof params.systemPrompt === 'string' && params.systemPrompt.toLowerCase().includes('example')}`,
 			)
