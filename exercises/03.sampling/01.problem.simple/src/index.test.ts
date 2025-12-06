@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import {
+	type CreateMessageRequest,
 	CreateMessageRequestSchema,
 	type CreateMessageResult,
 	ElicitRequestSchema,
@@ -229,7 +230,7 @@ test('Simple Sampling', async () => {
 	const { client } = setup
 	const messageResultDeferred = await deferred<CreateMessageResult>()
 	const messageRequestDeferred =
-		await deferred<z.infer<typeof CreateMessageRequestSchema>>()
+		await deferred<CreateMessageRequest>()
 
 	client.setRequestHandler(CreateMessageRequestSchema, (r) => {
 		messageRequestDeferred.resolve(r)
@@ -297,6 +298,7 @@ test('Simple Sampling', async () => {
 	const userMessage = params.messages.find((m) => m.role === 'user')
 	invariant(userMessage, '🚨 User message is required')
 	invariant(
+		// @ts-ignore 🤷‍♂️ pretty sure this is correct
 		typeof userMessage.content.text === 'string',
 		'🚨 User message content text must be a string',
 	)

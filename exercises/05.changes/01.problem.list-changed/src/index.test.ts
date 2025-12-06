@@ -5,6 +5,7 @@ import { faker } from '@faker-js/faker'
 import { Client } from '@modelcontextprotocol/sdk/client/index.js'
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js'
 import {
+	type CreateMessageRequest,
 	CreateMessageRequestSchema,
 	type CreateMessageResult,
 	ElicitRequestSchema,
@@ -231,7 +232,7 @@ test('Advanced Sampling', async () => {
 	const { client } = setup
 	const messageResultDeferred = await deferred<CreateMessageResult>()
 	const messageRequestDeferred =
-		await deferred<z.infer<typeof CreateMessageRequestSchema>>()
+		await deferred<CreateMessageRequest>()
 
 	client.setRequestHandler(CreateMessageRequestSchema, (r) => {
 		messageRequestDeferred.resolve(r)
@@ -310,7 +311,7 @@ test('Advanced Sampling', async () => {
 			params && 'messages' in params && Array.isArray(params.messages),
 			'🚨 messages array is required',
 		)
-		const userMessage = params.messages.find((m) => m.role === 'user')
+		const userMessage = params.messages.find((m) => m.role === 'user') as unknown as { content: { mimeType: string, text: string } }
 		invariant(userMessage, '🚨 User message is required')
 		invariant(
 			userMessage.content.mimeType === 'application/json',
@@ -370,6 +371,7 @@ test('Advanced Sampling', async () => {
 		if (params) {
 			console.error(`🚨 Current maxTokens: ${params.maxTokens} (should be >50)`)
 			console.error(
+				// @ts-ignore 🤷‍♂️ pretty sure this is correct
 				`🚨 Current mimeType: ${params.messages?.[0]?.content?.mimeType} (should be "application/json")`,
 			)
 			console.error(

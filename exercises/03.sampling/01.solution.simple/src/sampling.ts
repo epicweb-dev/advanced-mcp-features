@@ -35,6 +35,7 @@ Please respond with a proper commendation for yourself.
 		logger: 'tag-generator',
 		data: {
 			message: 'Received response from model',
+			// @ts-ignore 🤷‍♂️ pretty sure this is correct
 			modelResponse: result.content.text,
 		},
 	})
