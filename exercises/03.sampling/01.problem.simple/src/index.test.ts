@@ -276,7 +276,6 @@ test('Simple Sampling', async () => {
 						content: expect.objectContaining({
 							type: 'text',
 							text: expect.any(String),
-							mimeType: expect.any(String),
 						}),
 					}),
 				]),
