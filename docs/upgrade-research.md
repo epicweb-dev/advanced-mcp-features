@@ -2,6 +2,7 @@
 
 ## Executive summary
 
+- Product direction for this refresh: **do not optimize for backwards compatibility**. Teach MCP as it is now, using current protocol semantics and current SDK behavior.
 - This workshop still teaches and links to MCP spec `2025-06-18` in many places, while current MCP is `2025-11-25`.
 - The **highest-impact new concepts not currently represented here** are:
   1. **Sampling with tools** (`tools` + `toolChoice`),
@@ -11,6 +12,7 @@
   5. **Updated capability negotiation** (`sampling.tools`, `elicitation.form/url`, `tasks.*`),
   6. **JSON Schema 2020-12 as default dialect** expectations.
 - Workshop code currently pins `@modelcontextprotocol/sdk` to `^1.24.3`; latest is `v1.27.1`.
+- Recommended target baseline for this refresh: **latest `@modelcontextprotocol/sdk` (`v1.27.1`) + current dated spec (`2025-11-25`)** until a newer dated spec is published.
 
 ## Scope and evidence used
 
@@ -46,6 +48,21 @@
     - `/workshops/advanced-mcp-features-flccv`
     - `/workshops/mcp-ui-aubv9`
     - `/workshops/mcp-auth-ddk2h`
+
+---
+
+## Update policy for this refresh (explicit)
+
+This update should be done with a **current-spec-only** posture:
+
+1. **No backwards-compatibility teaching burden** in exercises.
+   - Teach modern capability shapes and modern request structures directly.
+1. **Do not center deprecated or legacy APIs** in workshop code.
+   - Legacy behavior may be mentioned briefly in notes, but not used as core implementation patterns.
+1. **Prefer explicit modern protocol usage**, even where older fallbacks remain legal.
+   - Example: use explicit elicitation mode semantics and modern capability negotiation.
+1. **Track draft only as a short-horizon release risk**, not as main curriculum baseline.
+   - Baseline remains latest dated release unless/until draft is promoted.
 
 ---
 
@@ -117,6 +134,37 @@
 
 - No major removals in the `2025-11-25` changelog materially impacting this workshop’s current scope.
 - Main impact is additive + behavior clarifications.
+
+---
+
+## Draft-spec watchlist (if draft became the next release next week)
+
+Based on draft changelog + schema/doc diffs against `2025-11-25`, these are the meaningful items to pre-account for:
+
+1. **Capabilities gain optional `extensions` field**
+   - Added to both `ClientCapabilities` and `ServerCapabilities`.
+   - Impact: low-to-medium. Mostly additive, but examples/teaching that show capability objects should be updated to avoid looking stale immediately.
+
+2. **`_meta` reserves OpenTelemetry trace context keys**
+   - Draft explicitly reserves `traceparent`, `tracestate`, and `baggage` for trace propagation.
+   - Impact: low. Mainly docs/teaching guidance, but important to avoid using these keys for custom metadata.
+
+3. **Sampling section adds stronger operational clarifications**
+   - Tools passed via `sampling.createMessage` are request-scoped (not necessarily registered server tools).
+   - Additional normative clarity around message sequencing, tool result matching, and result fields.
+   - Impact: medium for this workshop because Sampling is a core module.
+
+4. **No protocol method churn detected vs `2025-11-25`**
+   - No added/removed RPC method names in schema diff.
+   - Impact: low risk of immediate rewrite for method inventory.
+
+5. **Tasks still experimental in draft**
+   - Semantics remain potentially fluid.
+   - Impact: medium. We should teach tasks as powerful but evolving, with explicit “experimental” framing.
+
+6. **Security-best-practices references are moving toward tutorials/docs paths**
+   - Link targets in draft docs reference `/docs/tutorials/security/security_best_practices` rather than dated spec-local paths.
+   - Impact: low-to-medium. Use stable URLs in workshop text to avoid another round of link churn.
 
 ---
 
@@ -240,45 +288,49 @@ Below are the notable changes from `typescript-sdk` releases since 2025-10 that 
 
 ---
 
-## Concrete update backlog proposal (starting point)
+## Recommended actions to take (clear checklist)
 
-### Phase 0: alignment sweep (fast)
+These are ordered and intended to be executed as-is.
 
-1. Update all exercise links from `2025-06-18` to `2025-11-25`.
-2. Add a short “spec delta since 2025-06-18” callout in workshop intro.
-3. Decide SDK target baseline:
-   - minimum recommended: `^1.24.3` (already in repo),
-   - preferred for refreshed launch: `^1.27.1` after compatibility pass.
+### 1) Lock the update policy (decision)
 
-### Phase 1: curriculum-critical feature additions
+1. Declare in the workshop repo that this refresh is **current-spec-only** and **not backwards-compatibility-focused**.
+2. Set baseline to:
+   - MCP dated spec: `2025-11-25`
+   - SDK: latest stable (`@modelcontextprotocol/sdk` `v1.27.1`)
 
-1. Add **Sampling with tools** exercise path:
-   - request `tools` + `toolChoice`,
-   - validate tool-use loop behavior,
-   - test with `sampling.tools` capability gating.
-2. Expand **Elicitation**:
-   - teach form + URL modes,
-   - include `URLElicitationRequiredError` handling pattern,
-   - include security constraints and safe URL handling.
-3. Expand **Long Running Tasks**:
-   - introduce tasks lifecycle (`create` -> `get` -> `result`/`cancel`),
-   - compare tasks vs progress-only notifications,
-   - include task metadata (`related-task`) and polling strategy.
+### 2) Do immediate alignment edits (same PR batch)
 
-### Phase 2: metadata and UX upgrades
+1. Update all workshop links from `2025-06-18` to `2025-11-25`.
+2. Add a brief “what changed since 2025-06-18” section to workshop intro.
+3. Remove/replace legacy capability examples where they imply old-style patterns as the default.
 
-1. Add icons to at least one tool/resource/prompt/template flow.
-2. Teach how list-changed notifications relate to metadata/icon updates.
-3. Add client-facing display precedence guidance (title/annotations/name/icons).
+### 3) Implement the 3 curriculum-critical upgrades (separate PRs)
 
-### Phase 3: hardening and compatibility
+1. **Sampling module:** add tool-enabled sampling (`tools` + `toolChoice`) with explicit capability gating.
+2. **Elicitation module:** add URL mode + `URLElicitationRequiredError` + completion notification flow.
+3. **Long-running module:** add task lifecycle (`task` request metadata, `tasks/get`, `tasks/result`, `tasks/list`, `tasks/cancel`) and compare against progress/cancellation notifications.
 
-1. Add tests for updated capability negotiation:
-   - `elicitation.form`/`url`
-   - `sampling.tools`
-   - `tasks.requests.*`
-2. Validate behavior under newer strict SDK typing/spec compliance.
-3. Capture security notes from relevant SDK security fixes as teaching footnotes.
+### 4) Make the content draft-resilient now (small cost, high payoff)
+
+1. Add a short note in capability sections that `extensions` may appear (and should be treated as additive/optional).
+2. Add `_meta` guidance that custom metadata must avoid reserved trace keys (`traceparent`, `tracestate`, `baggage`).
+3. Use stable security best-practices links (`/docs/tutorials/security/security_best_practices`) where possible.
+
+### 5) Add verification gates before release
+
+1. Add/adjust tests for:
+   - `sampling.tools` negotiation and constraints,
+   - elicitation mode handling (`form`/`url`),
+   - task method flows and task metadata handling.
+2. Run module-scoped tests for all changed exercises.
+3. Run one end-to-end smoke pass in MCP Inspector for each upgraded module path.
+
+### 6) Release sequencing
+
+1. Ship docs/spec-link alignment first.
+2. Ship module upgrades incrementally (Sampling -> Elicitation -> Tasks) to keep review and rollback simple.
+3. Publish a short “what changed” note to learners stating this is a current-spec refresh, not a legacy compatibility release.
 
 ---
 
@@ -289,19 +341,4 @@ Below are the notable changes from `typescript-sdk` releases since 2025-10 that 
 3. Sampling exercises use plain `createMessage` requests and do not cover tool-enabled sampling.
 4. Long-running exercises currently focus on progress/cancel notifications; no tasks API coverage.
 5. Package dependencies pin `@modelcontextprotocol/sdk` around `^1.24.3` and `zod` v3.
-
----
-
-## Recommended immediate next step
-
-Create a small planning PR that does only:
-
-1. spec-link/date updates (`2025-11-25`),
-2. a new “Spec delta” section in workshop intro,
-3. TODO markers in the 3 affected modules:
-   - Elicitation (URL mode),
-   - Sampling (tools + toolChoice),
-   - Long-running tasks (tasks API).
-
-Then do feature additions as separate PRs per module to reduce risk and review load.
 
