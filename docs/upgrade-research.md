@@ -168,6 +168,51 @@ Based on draft changelog + schema/doc diffs against `2025-11-25`, these are the 
 
 ---
 
+## BREAKING CHANGES (video re-record required)
+
+Definition used for this section (per request):
+
+- **Counts as breaking:** any change to exercise step solution code, added exercises, removed/replaced exercises, or changed code path demonstrated in videos.
+- **Does not count as breaking:** instruction wording updates, link updates, and other docs-only edits with no solution code changes.
+
+Assumption: this follows the current-spec-only policy above (no legacy compatibility path in teaching).
+
+### Confirmed breaking changes for this repo update
+
+1. **Elicitation capability and API usage updates across solution code**
+   - Current solution code uses form-only patterns (`capabilities?.elicitation` and `elicitInput` form flow) in multiple solution tracks.
+   - Moving to current-spec teaching (mode-aware elicitation and URL-mode coverage) changes solution code behavior and shape.
+   - **Video impact:** re-record all affected walkthroughs where these solution files are explained or exercised (not just the dedicated elicitation module).
+
+2. **Sampling step solutions must change to teach tool-enabled sampling**
+   - Current sampling solutions call `createMessage` without `tools`/`toolChoice`.
+   - Current-spec curriculum requires explicit sampling-with-tools flows and capability gating (`sampling.tools`).
+   - **Video impact:** re-record Sampling module videos for steps whose solution code changes (simple + advanced tracks).
+
+3. **Long-running tasks module requires solution-code redesign for tasks**
+   - Current module teaches progress + cancellation; current-spec advanced coverage should include task lifecycle (`task` metadata, `tasks/get`, `tasks/result`, `tasks/list`, `tasks/cancel`).
+   - This is a code-path change, not just a narration change.
+   - **Video impact:** re-record long-running-task videos for any updated/replaced steps; new task-focused steps require new videos.
+
+4. **Exercise topology changes (added/replaced steps) are breaking by definition**
+   - Adding URL-mode elicitation step(s), sampling-with-tools step(s), and task lifecycle step(s) creates net-new recording requirements.
+   - Replacing/removing existing steps (if done) also forces re-records for affected module intros/transitions.
+
+### Likely non-breaking (no re-record required)
+
+1. Pure spec-link/date updates.
+2. Wording-only clarifications in README/exercise instructions.
+3. Draft watchlist additions that are additive-only and not reflected in solution code yet.
+
+### If draft became official a week later: additional re-record risk
+
+1. **Low additional break risk** if we already implement this update as proposed.
+   - Draft deltas are mostly additive/clarifying (`extensions` capabilities, trace-context `_meta` reservations, sampling clarifications).
+2. **Potential re-record trigger** only if videos hard-code now-stale capability object examples and omit additive fields entirely as “complete schema.”
+   - Mitigation: narrate capability objects as extensible and reserve `_meta` trace keys from day one.
+
+---
+
 ## What is currently missing in this workshop
 
 ### New concepts that should be represented
