@@ -43,7 +43,6 @@ If you have some suggestions, respond with an array of tag objects. Existing tag
 				role: 'user',
 				content: {
 					type: 'text',
-					mimeType: 'application/json',
 					text: JSON.stringify({ entry, currentTags, existingTags }),
 				},
 			},
