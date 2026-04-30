@@ -98,6 +98,15 @@ for a new journal entry.
 This step will help you practice prompt engineering for structured outputs, and
 show you how to use the full power of MCP's sampling API for real-world tasks.
 
+<callout-info>
+	Sampling with tools is available in the current protocol for clients that
+	advertise `clientCapabilities.sampling.tools`. That flow adds `tools` and
+	`toolChoice` to the sampling request, handles `ToolUseContent`, runs the
+	selected tool server-side, then sends `ToolResultContent` back into a
+	follow-up sampling call. We'll keep this step focused on structured sampling
+	output and leave sampling-with-tools as an advanced extension.
+</callout-info>
+
 There are tests to help verify your sampling request is working.
 
 To test this in the MCP inspector:

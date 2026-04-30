@@ -3,11 +3,26 @@ import { z } from 'zod'
 import { type EpicMeMCP } from './index.ts'
 
 const resultSchema = z.object({
-	content: z.object({
-		type: z.literal('text'),
-		text: z.string(),
-	}),
+	content: z.union([
+		z.object({
+			type: z.literal('text'),
+			text: z.string(),
+		}),
+		z.array(
+			z.object({
+				type: z.literal('text'),
+				text: z.string(),
+			}),
+		),
+	]),
 })
+
+function getSamplingTextContent(result: z.infer<typeof resultSchema>) {
+	const content = Array.isArray(result.content)
+		? result.content
+		: [result.content]
+	return content.map(({ text }) => text).join('\n')
+}
 
 export async function suggestTagsSampling(agent: EpicMeMCP, entryId: number) {
 	const clientCapabilities = agent.server.server.getClientCapabilities()
@@ -57,10 +72,11 @@ Please respond with a proper commendation for yourself.
 	})
 
 	const parsedResult = resultSchema.parse(result)
+	const modelResponse = getSamplingTextContent(parsedResult)
 
 	const { idsToAdd } = await parseAndProcessTagSuggestions({
 		agent,
-		modelResponse: parsedResult.content.text,
+		modelResponse,
 		existingTags,
 		currentTags,
 	}).catch((error) => {
@@ -69,7 +85,7 @@ Please respond with a proper commendation for yourself.
 			level: 'error',
 			data: {
 				message: 'Error parsing tag suggestions',
-				modelResponse: parsedResult.content.text,
+				modelResponse,
 				error,
 			},
 		})

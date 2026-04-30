@@ -13,8 +13,15 @@ Long-running operations are common in modern applications—think of file upload
 
 The Model Context Protocol (MCP) provides built-in support for both progress and cancellation via notification messages:
 
-- [MCP Progress Documentation](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress)
-- [MCP Cancellation Documentation](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation)
+- [MCP Progress Documentation](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/progress)
+- [MCP Cancellation Documentation](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/cancellation)
+
+<callout-info>
+	The MCP spec also has an experimental protocol-level Tasks model for durable
+	long-running work. This module still teaches request-level progress and
+	cancellation, which remain useful primitives, but a future video rewrite may
+	reframe this exercise around protocol Tasks once that flow stabilizes.
+</callout-info>
 
 ---
 
@@ -93,7 +100,7 @@ sequenceDiagram
 }
 ```
 
-For more details, see the [MCP Progress Documentation](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/progress).
+For more details, see the [MCP Progress Documentation](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/progress).
 
 ---
 
@@ -131,7 +138,7 @@ sequenceDiagram
 - The server should stop processing the request and not send a response for the cancelled request.
 - If the request is already complete or unknown, the server may ignore the cancellation notification.
 
-For more details, see the [MCP Cancellation Documentation](https://modelcontextprotocol.io/specification/2025-06-18/basic/utilities/cancellation).
+For more details, see the [MCP Cancellation Documentation](https://modelcontextprotocol.io/specification/2025-11-25/basic/utilities/cancellation).
 
 ---
 

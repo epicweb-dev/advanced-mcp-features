@@ -19,7 +19,7 @@ You can watch another [demo of this working here](https://www.epicai.pro/using-m
 
 <callout-success>
 	From [the MCP
-	Spec](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling):
+	Spec](https://modelcontextprotocol.io/specification/2025-11-25/client/sampling):
 	Sampling in MCP allows servers to implement agentic behaviors, by enabling LLM
 	calls to occur _nested_ inside other MCP server features. Implementations are
 	free to expose sampling through any interface pattern that suits their
@@ -50,6 +50,15 @@ sequenceDiagram
 	end
 ```
 
+<callout-info>
+	Because sampling is a server-to-client request, only issue
+	`sampling/createMessage` while handling an originating client request such as
+	`tools/call`, `resources/read`, or `prompts/get`. Also check
+	`clientCapabilities.sampling` before calling `createMessage`; if you include
+	`tools` in a sampling request, the client must also advertise
+	`clientCapabilities.sampling.tools`.
+</callout-info>
+
 Here's a simple example of a sampling request and response using MCP:
 
 ```json filename=server-request.json nocopy
@@ -72,6 +81,15 @@ Here's a simple example of a sampling request and response using MCP:
 	}
 }
 ```
+
+<callout-info>
+	The base `createMessage` API returns a single content block for compatibility.
+	When sampling tools are used, the result content may be a single block or an
+	array of blocks, and `stopReason: "toolUse"` means the model is asking the
+	server to execute one or more tools before continuing. This workshop keeps
+	sampling-with-tools as an advanced written note rather than rewriting the
+	exercise flow.
+</callout-info>
 
 ```json filename=client-response.json nocopy
 {
@@ -123,6 +141,10 @@ capability. You'll see how to:
   for new journal entries.
 - Send log messages from your server to the client for debugging and monitoring.
 
+Avoid `includeContext: "thisServer"` or `includeContext: "allServers"` unless
+the client explicitly advertises `sampling.context`; those modes are not a safe
+default for new material.
+
 You'll also explore how to craft effective prompts for the model, and how to
 structure your requests and responses for reliability and safety.
 
@@ -158,6 +180,6 @@ Here are some examples of log messages you might send during sampling:
 
 In the MCP inspector, this will show up in the server notifications feed. The host application may or may not show logs to the user.
 
-- 📜 [MCP Sampling Spec](https://modelcontextprotocol.io/specification/2025-06-18/client/sampling)
-- 📜 [MCP Logging Documentation](https://modelcontextprotocol.io/specification/2025-06-18/server/utilities/logging)
+- 📜 [MCP Sampling Spec](https://modelcontextprotocol.io/specification/2025-11-25/client/sampling)
+- 📜 [MCP Logging Documentation](https://modelcontextprotocol.io/specification/2025-11-25/server/utilities/logging)
 - 📜 [Goose Blog: MCP Sampling: When Your Tools Need to Think](https://block.github.io/goose/blog/2025/12/04/mcp-sampling/)

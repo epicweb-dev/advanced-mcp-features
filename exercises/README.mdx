@@ -7,7 +7,7 @@ oriented and to give you your assignments for the workshop!
 
 Welcome to **Advanced MCP Features**! In this workshop, you'll dive into the world of
 the
-[Model Context Protocol (MCP)](https://modelcontextprotocol.io/specification/2025-06-18)—an
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/specification/2025-11-25)—an
 open protocol designed to seamlessly connect AI models with external data
 sources and tools. We'll be going deeper on the MCP spec and how to use it to
 build more advanced AI connected apps.
@@ -21,7 +21,7 @@ to build our MCP server and the
 [MCP Inspector](https://github.com/modelcontextprotocol/inspector) to test it.
 
 If you're curious about the details, I highly recommend checking out the
-[official MCP specification](https://modelcontextprotocol.io/specification/2025-06-18)
+[official MCP specification](https://modelcontextprotocol.io/specification/2025-11-25)
 and the [introduction](https://modelcontextprotocol.io/introduction). These
 resources provide a deep dive into the protocol, its design principles, and
 practical implementation tips.
@@ -34,5 +34,27 @@ practical implementation tips.
 	[nanobot.ai](https://nanobot.ai/). If you're using another client, you may not
 	be able to test all the features in this workshop.
 </callout-danger>
+
+<callout-info>
+	Advanced MCP features often land in clients at different speeds. Verify
+	support in your target host before depending on features like elicitation,
+	sampling, roots, progress, cancellation, resource subscriptions, or
+	`list_changed` notifications in production.
+</callout-info>
+
+<callout-info>
+	Some server-to-client requests, including `sampling/createMessage`,
+	`elicitation/create`, and `roots/list`, are expected to be associated with an
+	originating client request such as `tools/call`, `resources/read`, or
+	`prompts/get`. Treat these as nested interactions instead of background
+	pushes.
+</callout-info>
+
+<callout-info>
+	HTTP transports are also evolving toward more stateless deployment patterns.
+	The exercises here focus on advanced feature behavior, not transport
+	architecture, so only adapt transport code if the SDK requires it for your
+	runtime.
+</callout-info>
 
 Ready to build even better AI connected apps? Then let's get going!

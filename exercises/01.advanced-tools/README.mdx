@@ -6,6 +6,11 @@
 
 Tool annotations are metadata attached to each tool definition. They help clients and users understand the tool's behavior, especially regarding side effects, safety, and intended use. Annotations do **not** affect the tool's execution. They are hints for UI, approval flows, and documentation.
 
+Tool names should be stable protocol identifiers. The current spec recommends
+1-64 characters using ASCII letters, digits, `_`, `-`, `.`, and `/`. Use the
+top-level `title` for user-facing display and `name` for the stable
+model/protocol identifier.
+
 <callout-warning>
 	Annotations are *not* security features. They are advisory only and should not
 	be relied on for access control or sandboxing.
@@ -119,11 +124,24 @@ Clients can use annotations to:
 
 ### Learn More 📜
 
-For a full list of available annotations and their meanings, see the [official MCP documentation on tool annotations](https://modelcontextprotocol.io/specification/2025-06-18/schema#toolannotations).
+For a full list of available annotations and their meanings, see the [official MCP documentation on tool annotations](https://modelcontextprotocol.io/specification/2025-11-25/schema#toolannotations).
+
+<callout-info>
+	The current spec includes optional `icons` metadata for tools, but the
+	high-level TypeScript SDK `registerTool` helper used in this workshop exposes
+	`title`, `description`, schemas, annotations, and `_meta`. Keep this exercise
+	focused on safety annotations until icon metadata is available through that
+	helper.
+</callout-info>
 
 ## Structured Output and Output Schemas
 
 Structured output allows tools to return rich, machine-validated data instead of just plain text. By defining an `outputSchema` for a tool, the server ensures that all tool responses conform to a specific structure, making it easier for clients and LLMs to consume, validate, and act on the results.
+
+MCP defaults embedded schemas to JSON Schema 2020-12. The TypeScript SDK lets us
+define `outputSchema` with Zod raw shapes in `registerTool`, then exposes the
+generated JSON Schema to clients. Tool results put machine-readable data in
+`structuredContent`, while `content` remains the user/model-facing response.
 
 ### Why Use Structured Output?
 
@@ -259,4 +277,9 @@ sequenceDiagram
 2. **Validate on the server:** Always validate tool output before returning to the client (the SDK does this for us).
 3. **Handle validation errors gracefully:** Inform users or clients when output does not match the schema (the SDK does this for us).
 
-For more details, see the 📜 [official MCP documentation on structured content and output schemas](https://modelcontextprotocol.io/specification/2025-06-18/server/tools#structured-content).
+Validation failures should be surfaced as tool execution errors that the model
+can see, generally with `isError: true`, rather than as JSON-RPC protocol
+errors. Reserve protocol errors for malformed requests, unknown methods/tools,
+and server failures that prevent normal tool execution.
+
+For more details, see the 📜 [official MCP documentation on structured content and output schemas](https://modelcontextprotocol.io/specification/2025-11-25/server/tools#structured-content).

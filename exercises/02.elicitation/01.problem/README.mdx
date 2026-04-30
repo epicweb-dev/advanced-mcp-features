@@ -8,6 +8,7 @@ This is where **elicitation** comes in. Instead of making assumptions, our MCP s
 
 ```js
 const result = await agent.server.server.elicitInput({
+	mode: 'form',
 	message: `Are you sure you want to delete sandwich "The Big Dipper" (ID: 42)?`,
 	requestedSchema: {
 		type: 'object',
@@ -65,6 +66,11 @@ if (capabilities?.elicitation) {
 ```
 
 This approach ensures users are always in control of important actions, and the system responds with empathy and clarity.
+
+Elicitation should happen while handling an originating client request like this
+tool call, not from a detached background job. If the interaction needs to send
+the user to a third-party page for OAuth, payments, or API key setup, use URL
+mode instead so secrets do not pass through the MCP client.
 
 Test this one out by using the `delete_tag` tool.
 

@@ -18,6 +18,12 @@ This exercise will teach you how to implement and respond to change notification
 	They let clients update menus, toolbars, and resource lists automatically.
 </callout-info>
 
+<callout-info>
+	These notifications are not superseded by protocol Tasks. Tasks help with
+	durable long-running operations; `list_changed` notifications and resource
+	subscriptions still tell clients when definitions or resource contents change.
+</callout-info>
+
 ---
 
 ## 1. List Change (Tools, Prompts, and Resources)
@@ -27,6 +33,13 @@ Whenever the set of available tools, prompts, or resources changes, the server s
 - **Tools:** If a tool is added, removed, or updated, send a `notifications/tools/list_changed` request.
 - **Prompts:** If a prompt is enabled, disabled, or updated, send a `notifications/prompts/list_changed` request.
 - **Resources:** If a static resource or resource template is registered, unregistered, or its metadata changes, send a `notifications/resources/list_changed` request.
+
+Metadata updates count too. If a supported metadata field such as a resource
+`title`, `description`, or `icons` changes, send the relevant `list_changed`
+notification so clients can refresh their cached display data. The current
+high-level TypeScript SDK exposes `icons` for resources and resource templates;
+tool and prompt icon metadata may require lower-level APIs until helper support
+lands.
 
 <callout-success>
 	Clients that support `list_changed` can provide a seamless, always-up-to-date
@@ -135,6 +148,12 @@ When the module's status changes (e.g., a new experiment starts, or the module i
 	latter.
 </callout-muted>
 
+<callout-info>
+	Subscriptions are connection/session sensitive. If you deploy with a stateless
+	or sessionless HTTP transport, subscription state must live somewhere durable
+	or be re-established by the client on each relevant connection.
+</callout-info>
+
 ---
 
 ## Sequence Diagram
@@ -182,6 +201,6 @@ sequenceDiagram
 
 ## References
 
-- 📜 [Server Spec: Resources](https://modelcontextprotocol.io/specification/2025-06-18/server/resources)
-- 📜 [Server Spec: Tools](https://modelcontextprotocol.io/specification/2025-06-18/server/tools)
-- 📜 [Server Spec: Prompts](https://modelcontextprotocol.io/specification/2025-06-18/server/prompts)
+- 📜 [Server Spec: Resources](https://modelcontextprotocol.io/specification/2025-11-25/server/resources)
+- 📜 [Server Spec: Tools](https://modelcontextprotocol.io/specification/2025-11-25/server/tools)
+- 📜 [Server Spec: Prompts](https://modelcontextprotocol.io/specification/2025-11-25/server/prompts)

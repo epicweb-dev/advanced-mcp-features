@@ -132,6 +132,12 @@ export async function initializeResources(agent: EpicMeMCP) {
 		{
 			title: 'EpicMe Videos',
 			description: 'A single video with the given ID',
+			icons: [
+				{
+					src: 'https://www.epicai.pro/favicon.svg',
+					mimeType: 'image/svg+xml',
+				},
+			],
 		},
 		async (uri, { videoId }) => {
 			invariant(typeof videoId === 'string', 'Video ID is required')

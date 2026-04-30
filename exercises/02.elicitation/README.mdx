@@ -30,6 +30,8 @@ When an MCP server needs more information, it sends an `elicitation/create` requ
 
 - A **message** to display to the user (e.g., "What is your preferred delivery window?")
 - A **requestedSchema** (using a restricted JSON Schema) describing the expected input (e.g., a string `deliveryWindow` field with enum options)
+- A **mode**. Form elicitation may omit `mode` for compatibility, but examples
+  should prefer `mode: "form"`. URL elicitation uses `mode: "url"`.
 
 The client presents this to the user, who can:
 
@@ -59,6 +61,7 @@ Imagine an online pizza ordering system. After a user selects their pizza and to
 	"id": 1,
 	"method": "elicitation/create",
 	"params": {
+		"mode": "form",
 		"message": "Would you like to add a drink to your order?",
 		"requestedSchema": {
 			"type": "object",
@@ -67,8 +70,12 @@ Imagine an online pizza ordering system. After a user selects their pizza and to
 					"type": "string",
 					"title": "Drink Selection",
 					"description": "Choose a drink to add to your order",
-					"enum": ["None", "Cola", "Lemonade", "Water"],
-					"enumNames": ["No drink", "Cola", "Lemonade", "Water"]
+					"oneOf": [
+						{ "const": "none", "title": "No drink" },
+						{ "const": "cola", "title": "Cola" },
+						{ "const": "lemonade", "title": "Lemonade" },
+						{ "const": "water", "title": "Water" }
+					]
 				}
 			},
 			"required": ["drink"]
@@ -92,7 +99,7 @@ Here's what the response from the client might look like:
 	"result": {
 		"action": "accept", // or "decline" or "cancel"
 		"content": {
-			"drink": "Cola"
+			"drink": "cola"
 		}
 	}
 }
@@ -100,7 +107,79 @@ Here's what the response from the client might look like:
 
 If the user selects a drink, it's added to the order. If they choose "None" or decline, the order proceeds without a drink.
 
-For more details, see the [MCP Elicitation Spec](https://modelcontextprotocol.io/specification/2025-06-18/client/elicitation).
+For more details, see the [MCP Elicitation Spec](https://modelcontextprotocol.io/specification/2025-11-25/client/elicitation).
+
+## Multi-Select Forms
+
+Form elicitation can also collect multiple values. For example, a client could
+ask which optional toppings to add and return a `string[]`:
+
+```json filename=multi-select-request.json nocopy
+{
+	"jsonrpc": "2.0",
+	"id": 2,
+	"method": "elicitation/create",
+	"params": {
+		"mode": "form",
+		"message": "Which toppings should we add?",
+		"requestedSchema": {
+			"type": "object",
+			"properties": {
+				"toppings": {
+					"type": "array",
+					"title": "Toppings",
+					"items": {
+						"type": "string",
+						"enum": ["mushrooms", "olives", "peppers", "pineapple"]
+					}
+				}
+			},
+			"required": ["toppings"]
+		}
+	}
+}
+```
+
+```json filename=multi-select-response.json nocopy
+{
+	"jsonrpc": "2.0",
+	"id": 2,
+	"result": {
+		"action": "accept",
+		"content": {
+			"toppings": ["mushrooms", "olives"]
+		}
+	}
+}
+```
+
+## URL Mode
+
+Use URL elicitation for sensitive or out-of-band interactions where the user
+needs to leave the MCP client flow, such as third-party OAuth, payment
+authorization, or API key setup. Secrets should not pass through the MCP client.
+Instead, the server asks the client to open a URL, the user completes the
+interaction directly with the trusted site, and the server is notified when the
+out-of-band interaction completes.
+
+```json filename=url-mode-request.json nocopy
+{
+	"jsonrpc": "2.0",
+	"id": 3,
+	"method": "elicitation/create",
+	"params": {
+		"mode": "url",
+		"message": "Connect your calendar account to continue.",
+		"url": "https://example.com/connect/calendar",
+		"elicitationId": "calendar-oauth-123"
+	}
+}
+```
+
+When the out-of-band interaction completes, servers can send
+`notifications/elicitation/complete` for the `elicitationId`. If a request cannot
+continue until URL elicitation is completed, the server may return the URL
+elicitation required error code `-32042`.
 
 ## Sequence Diagram
 
@@ -147,9 +226,11 @@ Elicitation is ideal for scenarios where:
 - Always handle accept, decline, and cancel actions.
 - Check client capabilities before attempting elicitation.
 - Use elicitation sparingly - it should enhance, not interrupt, the user experience.
+- Only send elicitation requests while handling an originating client request,
+  such as a tool call, resource read, or prompt request.
 
 ## References
 
-- 📜 [MCP Elicitation Spec](https://modelcontextprotocol.io/specification/2025-06-18/client/elicitation)
+- 📜 [MCP Elicitation Spec](https://modelcontextprotocol.io/specification/2025-11-25/client/elicitation)
 - 📜 [Elicitation Concepts](https://modelcontextprotocol.io/docs/learn/client-concepts#elicitation)
 - 📜 [MCP Elicitations: Standardizing Interactive AI Workflows](https://blog.fka.dev/blog/2025-01-15-mcp-elicitations-standardizing-interactive-ai-workflows/)

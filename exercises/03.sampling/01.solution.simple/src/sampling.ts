@@ -1,5 +1,19 @@
 import { type EpicMeMCP } from './index.ts'
 
+function getSamplingTextContent(result: {
+	content:
+		| { type: string; text?: string }
+		| Array<{ type: string; text?: string }>
+}) {
+	const content = Array.isArray(result.content)
+		? result.content
+		: [result.content]
+	return content
+		.filter((block) => block.type === 'text' && typeof block.text === 'string')
+		.map((block) => block.text)
+		.join('\n')
+}
+
 export async function suggestTagsSampling(agent: EpicMeMCP, entryId: number) {
 	const clientCapabilities = agent.server.server.getClientCapabilities()
 	if (!clientCapabilities?.sampling) {
@@ -34,8 +48,7 @@ Please respond with a proper commendation for yourself.
 		logger: 'tag-generator',
 		data: {
 			message: 'Received response from model',
-			// @ts-ignore 🤷‍♂️ pretty sure this is correct
-			modelResponse: result.content.text,
+			modelResponse: getSamplingTextContent(result),
 		},
 	})
 }
