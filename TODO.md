@@ -20,6 +20,16 @@ Sources to re-check before recording:
 - SEP-2575 stateless MCP PR:
   https://github.com/modelcontextprotocol/modelcontextprotocol/pull/2575
 
+## Video Impact Legend
+
+- `[video required]`: the current video teaches materially inaccurate guidance
+  and should be rerecorded or replaced.
+- `[verify transcript]`: inspect the named segment before deciding; current
+  evidence was incomplete or conditional.
+- `[content-only]`: update README/code/comments/callouts; the existing video can
+  remain.
+- `[video if ...]`: video work depends on choosing that larger rewrite.
+
 ## Recommended Strategy
 
 This workshop should absorb most of the post-September spec changes. Keep the
@@ -36,61 +46,63 @@ center of exercise 04, with progress/cancellation as supporting details.
 
 ## Global Updates
 
-- [ ] Update all spec links from `2025-06-18` to the current released spec once
+- [ ] [content-only] Update all spec links from `2025-06-18` to the current released spec once
   the June 2026 release lands. Until then, use `2025-11-25` for stable features
   and link to draft/SEP docs only where necessary.
-- [ ] Add a root README callout that advanced MCP features have uneven client
+- [ ] [content-only] Add a root README callout that advanced MCP features have uneven client
   support and that users should verify support in their target host.
-- [ ] Audit schemas for JSON Schema 2020-12 compatibility. Add `$schema` only
+- [ ] [content-only] Audit schemas for JSON Schema 2020-12 compatibility. Add `$schema` only
   where a non-default dialect is intentional.
-- [ ] Add a short mention that server-to-client requests such as
+- [ ] [content-only] Add a short mention that server-to-client requests such as
   `sampling/createMessage`, `elicitation/create`, and `roots/list` must be
   associated with an originating client request. This is likely to become a
   hard requirement in the June 2026 cycle.
-- [ ] If the June stateless transport proposal lands, add a short conceptual
+- [ ] [content-only] If the June stateless transport proposal lands, add a short conceptual
   note to the introduction. Do not rewrite every exercise around it unless the
   TypeScript SDK API forces that change.
 
 ## Exercise 01: Advanced Tools
 
-- [ ] Add the 2025-11 tool naming guidance to the tool annotations discussion:
+- [ ] [content-only] Add the 2025-11 tool naming guidance to the tool annotations discussion:
   1-64 chars, case-sensitive, ASCII letters/digits plus `_`, `-`, `.`, and `/`.
-- [ ] Add one example of `icons` metadata for a tool if the SDK supports it.
+- [ ] [content-only] Add one example of `icons` metadata for a tool if the SDK supports it.
   Keep the existing safety annotations exercise intact.
-- [ ] Review structured output examples for the current `structuredContent` and
+- [ ] [content-only] Review structured output examples for the current `structuredContent` and
   `outputSchema` API in the TypeScript SDK.
-- [ ] Ensure validation failures are described as tool execution errors visible
+- [ ] [content-only] Ensure validation failures are described as tool execution errors visible
   to the model, not protocol errors.
-- [ ] If HTTP header standardization lands in June, optionally add a short
+- [ ] [content-only] If HTTP header standardization lands in June, optionally add a short
   advanced note that tool schemas may use `x-mcp-header` for infrastructure
   routing. Do not make it an exercise unless there is SDK support.
 
 ## Exercise 02: Elicitation
 
-- [ ] Replace all `enumNames` examples with standards-based enum schemas:
+- [ ] [verify transcript] Replace all `enumNames` examples with standards-based enum schemas:
   use plain `enum` when values are display-ready and `oneOf` or `anyOf` with
-  `const` plus `title` when display labels differ from stored values.
-- [ ] Add a multi-select elicitation example returning `string[]`.
-- [ ] Add `mode: "form"` to form elicitation examples if the current SDK/spec
-  requires explicit modes.
-- [ ] Add a new URL mode section. It should explain that URL elicitation is for
+  `const` plus `title` when display labels differ from stored values. The README
+  has `enumNames`; verify whether the intro video shows or narrates that schema.
+- [ ] [content-only] Add a multi-select elicitation example returning `string[]`.
+- [ ] [verify transcript] Add `mode: "form"` to form elicitation examples if the current SDK/spec
+  requires explicit modes. If a solution video visibly builds the old request,
+  consider a short video patch; otherwise keep this content-only.
+- [ ] [content-only] Add a new URL mode section. It should explain that URL elicitation is for
   sensitive or out-of-band interactions such as third-party OAuth, payments, or
   API key setup, and that secrets must not pass through the MCP client.
-- [ ] Add a small URL mode exercise if client/inspector support is good enough.
+- [ ] [content-only] Add a small URL mode exercise if client/inspector support is good enough.
   If not, add a README-only exercise and keep the code focused on form mode.
-- [ ] Include `notifications/elicitation/complete` and the URL elicitation
+- [ ] [content-only] Include `notifications/elicitation/complete` and the URL elicitation
   required error (`-32042`) in the conceptual material.
-- [ ] Add the request association warning: elicitation should be nested inside
+- [ ] [content-only] Add the request association warning: elicitation should be nested inside
   an originating tool/resource/prompt request, not fired from a background task.
 
 ## Exercise 03: Sampling
 
-- [ ] Update the simple sampling exercise to check `clientCapabilities.sampling`
+- [ ] [content-only] Update the simple sampling exercise to check `clientCapabilities.sampling`
   before calling `createMessage`.
-- [ ] Avoid `includeContext: "thisServer"` or `"allServers"` in new material.
+- [ ] [content-only] Avoid `includeContext: "thisServer"` or `"allServers"` in new material.
   Those modes are soft-deprecated unless the client explicitly advertises
-  `sampling.context`.
-- [ ] Add a second exercise or rewrite `02.problem.advanced` around sampling
+  `sampling.context`. Transcript already cautions against `includeContext`.
+- [ ] [video if replacing advanced sampling] Add a second exercise or rewrite `02.problem.advanced` around sampling
   with tools:
   - declare `clientCapabilities.sampling.tools`
   - pass `tools` and `toolChoice`
@@ -98,24 +110,28 @@ center of exercise 04, with progress/cancellation as supporting details.
   - execute the selected tool server-side
   - send `ToolResultContent` back into the next sampling call
   - handle `stopReason: "toolUse"`
-- [ ] Update parsing code because sampling result `content` may be a single
+  If sampling-with-tools is only an optional written addendum, keep it
+  content-only. If it replaces the current advanced sampling lesson, rerecord.
+- [ ] [content-only] Update parsing code because sampling result `content` may be a single
   content block or an array of content blocks.
-- [ ] Add the request association warning: sampling is only valid while handling
+- [ ] [content-only] Add the request association warning: sampling is only valid while handling
   a client-originated request such as `tools/call`, `resources/read`, or
   `prompts/get`.
-- [ ] Keep server-side logging in this module if it still fits, but consider
+- [ ] [content-only] Keep server-side logging in this module if it still fits, but consider
   moving it to a shorter sidebar so the new sampling-with-tools material has
   room.
 
 ## Exercise 04: Long Running Tasks
 
-- [ ] Rename the module to `04.tasks` if possible. The current "long running
+- [ ] [video required if Tasks-centered] Rename the module to `04.tasks` if possible. The current "long running
   tasks" title accidentally conflicts with the new protocol-level Tasks feature
-  while only teaching progress and cancellation.
-- [ ] Replace the main exercise path with protocol Tasks once the June version is
+  while only teaching progress and cancellation. Current videos frame this
+  module around progress tokens, `notifications/progress`,
+  `notifications/cancelled`, and `AbortController`.
+- [ ] [video required if Tasks-centered] Replace the main exercise path with protocol Tasks once the June version is
   stable. Progress notifications and cancellation should become supporting
   concepts inside a Tasks flow.
-- [ ] Teach the 2025-11 experimental model only as history if June changes land.
+- [ ] [video planning] Teach the 2025-11 experimental model only as history if June changes land.
   The likely June direction from SEP-2557 is:
   - task creation can be returned directly from ordinary requests
   - `tasks/get` becomes the polling and result retrieval API
@@ -123,23 +139,23 @@ center of exercise 04, with progress/cancellation as supporting details.
   - `tasks/list` is likely removed
   - `ttl` is likely seconds, while poll interval remains milliseconds
   - `requestState` may exist for stateless/sessionless implementations
-- [ ] Do not build new videos around the 2025-11 experimental
+- [ ] [video planning] Do not build new videos around the 2025-11 experimental
   `tasks/result` flow unless June slips and the SDK does not expose the
   stabilization work.
-- [ ] Keep cancellation, but update it to task cancellation if the final spec
+- [ ] [video if task cancellation is demonstrated] Keep cancellation, but update it to task cancellation if the final spec
   provides `tasks/cancel`; otherwise keep `notifications/cancelled` as the
   request-level primitive and explain how it relates to tasks.
-- [ ] If client support is weak, make the implementation use a small local test
+- [ ] [content-only] If client support is weak, make the implementation use a small local test
   harness instead of depending on host UI support.
 
 ## Exercise 05: Changes
 
-- [ ] Keep `list_changed` notifications and resource subscriptions; they remain
+- [ ] [content-only] Keep `list_changed` notifications and resource subscriptions; they remain
   valuable and are not superseded by Tasks.
-- [ ] Add optional `icons` metadata to a dynamic tool/resource/prompt example and
+- [ ] [content-only] Add optional `icons` metadata to a dynamic tool/resource/prompt example and
   show that metadata changes should trigger the appropriate `list_changed`
   notification.
-- [ ] If stateless/sessionless MCP lands in June, verify that any examples using
+- [ ] [content-only] If stateless/sessionless MCP lands in June, verify that any examples using
   in-memory subscriptions still make sense. Add a callout that subscriptions are
   connection/session sensitive and may require persistent transport support.
 
