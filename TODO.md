@@ -89,7 +89,9 @@ center of exercise 04, with progress/cancellation as supporting details.
       stored values. The README has `enumNames`; verify whether the intro video
       shows or narrates that schema. Content updated: README no longer uses
       `enumNames`; intro transcript is still unavailable, so video verification
-      remains open.
+      remains open. Re-checked with Epicshop MCP: the intro transcript still
+      returns "Transcripts not available." The step problem and solution
+      transcripts are available and do not mention `enumNames`.
 - [x] [content-only] Add a multi-select elicitation example returning
       `string[]`.
 - [x] [verify transcript] Add `mode: "form"` to form elicitation examples if the
