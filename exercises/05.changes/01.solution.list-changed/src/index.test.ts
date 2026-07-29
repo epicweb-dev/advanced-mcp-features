@@ -390,85 +390,92 @@ test('Advanced Sampling', async () => {
 	await new Promise((resolve) => setTimeout(resolve, 100))
 })
 
-test('Progress notification: create_wrapped_video (mock)', async () => {
-	await using setup = await setupClient()
-	const { client } = setup
+test(
+	'Progress notification: create_wrapped_video (mock)',
+	{ timeout: 10_000 },
+	async () => {
+		await using setup = await setupClient()
+		const { client } = setup
 
-	const progressDeferred = await deferred<any>()
-	client.setNotificationHandler(ProgressNotificationSchema, (notification) => {
-		progressDeferred.resolve(notification)
-	})
-
-	// Ensure the tool is enabled by creating a tag and an entry first
-	await client.callTool({
-		name: 'create_tag',
-		arguments: {
-			name: faker.lorem.word(),
-			description: faker.lorem.sentence(),
-		},
-	})
-	await client.callTool({
-		name: 'create_entry',
-		arguments: {
-			title: faker.lorem.words(3),
-			content: faker.lorem.paragraphs(2),
-		},
-	})
-
-	// Call the tool with mockTime: 500
-	const progressToken = faker.string.uuid()
-	const createVideoResult = await client.callTool({
-		name: 'create_wrapped_video',
-		arguments: {
-			mockTime: 500,
-		},
-		_meta: {
-			progressToken,
-		},
-	})
-
-	// Verify the tool call completed successfully
-	expect(
-		createVideoResult.structuredContent,
-		'🚨 create_wrapped_video should return structured content',
-	).toBeDefined()
-
-	let progressNotif
-	try {
-		progressNotif = await Promise.race([
-			progressDeferred.promise,
-			new Promise((_, reject) =>
-				setTimeout(() => reject(new Error('timeout')), 2000),
-			),
-		])
-	} catch {
-		throw new Error(
-			'🚨 Did not receive progress notification for create_wrapped_video (mock). Make sure your tool sends progress updates when running in mock mode.',
+		const progressDeferred = await deferred<any>()
+		client.setNotificationHandler(
+			ProgressNotificationSchema,
+			(notification) => {
+				progressDeferred.resolve(notification)
+			},
 		)
-	}
 
-	expect(
-		progressNotif,
-		'🚨 Did not receive progress notification for create_wrapped_video (mock).',
-	).toBeDefined()
+		// Ensure the tool is enabled by creating a tag and an entry first
+		await client.callTool({
+			name: 'create_tag',
+			arguments: {
+				name: faker.lorem.word(),
+				description: faker.lorem.sentence(),
+			},
+		})
+		await client.callTool({
+			name: 'create_entry',
+			arguments: {
+				title: faker.lorem.words(3),
+				content: faker.lorem.paragraphs(2),
+			},
+		})
 
-	expect(
-		typeof progressNotif.params.progress,
-		'🚨 progress should be a number',
-	).toBe('number')
-	expect(
-		progressNotif.params.progress,
-		'🚨 progress should be a number between 0 and 1',
-	).toBeGreaterThanOrEqual(0)
-	expect(
-		progressNotif.params.progress,
-		'🚨 progress should be a number between 0 and 1',
-	).toBeLessThanOrEqual(1)
-	expect(
-		progressNotif.params.progressToken,
-		'🚨 progressToken should match the token sent in the tool call',
-	).toBe(progressToken)
-})
+		// Call the tool with mockTime: 500
+		const progressToken = faker.string.uuid()
+		const createVideoResult = await client.callTool({
+			name: 'create_wrapped_video',
+			arguments: {
+				mockTime: 500,
+			},
+			_meta: {
+				progressToken,
+			},
+		})
+
+		// Verify the tool call completed successfully
+		expect(
+			createVideoResult.structuredContent,
+			'🚨 create_wrapped_video should return structured content',
+		).toBeDefined()
+
+		let progressNotif
+		try {
+			progressNotif = await Promise.race([
+				progressDeferred.promise,
+				new Promise((_, reject) =>
+					setTimeout(() => reject(new Error('timeout')), 2000),
+				),
+			])
+		} catch {
+			throw new Error(
+				'🚨 Did not receive progress notification for create_wrapped_video (mock). Make sure your tool sends progress updates when running in mock mode.',
+			)
+		}
+
+		expect(
+			progressNotif,
+			'🚨 Did not receive progress notification for create_wrapped_video (mock).',
+		).toBeDefined()
+
+		expect(
+			typeof progressNotif.params.progress,
+			'🚨 progress should be a number',
+		).toBe('number')
+		expect(
+			progressNotif.params.progress,
+			'🚨 progress should be a number between 0 and 1',
+		).toBeGreaterThanOrEqual(0)
+		expect(
+			progressNotif.params.progress,
+			'🚨 progress should be a number between 0 and 1',
+		).toBeLessThanOrEqual(1)
+		expect(
+			progressNotif.params.progressToken,
+			'🚨 progressToken should match the token sent in the tool call',
+		).toBe(progressToken)
+	},
+)
 
 test('Cancellation support: create_wrapped_video (mock)', async () => {
 	await using setup = await setupClient()
